@@ -1,0 +1,12 @@
+Novel Text scene Localization and detection
+- Description:
+Given an image , contianing  text find regions that the texts resides and draw boxes around them and also perform OCR with the detected regions of the text.
+What is the advantage:
+we do not have to process all pixel values of the input image for character detection.
+Existing solution: 
+Tons of existing solution--- demo from oxford project thingy
+demonstrate that it is not so perfect in the regions it proposes with text
+
+What we are going to do :
+We will enforce a network with new approaches of regularization to output finer box regression proposals
+Try to compare against state of the art ....!!!!!!(tan ta na naaaaaaaaaaam) 
