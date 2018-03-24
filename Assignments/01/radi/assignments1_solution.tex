@@ -1,0 +1,38 @@
+\documentclass[11pt]{article}
+\usepackage{mathtools}
+
+\title{Advanced Topics in Machine Learning \\ Solution Assignment \#1}
+\author{Rathesan Iyadurai \\ 10-107-688}
+
+\begin{document}
+\maketitle
+
+Derive the gradients $\frac{\partial L}{\partial W_1}$ and $\frac{\partial L}{\partial W_2}$.
+
+\begin{equation*}
+\begin{split}
+L &= (non(XW_1)W_2 - X)^2\\
+non(X) &= 
+\begin{cases}
+	X & \quad \text{if } X \geq 0 \\
+	0 & \quad \text{if } X < 0
+\end{cases} \\
+\frac{\partial L}{\partial W_1} &= 
+\begin{cases}
+	2W_2X^2(non(XW_1)W_2 - X) & \quad \text{if } XW1 \geq 0 \\
+	0                      & \quad \text{if } XW1 < 0
+\end{cases}\\
+\frac{\partial L}{\partial W_2} &=
+\begin{cases}
+	2non(XW1)(non(XW_1)W_2 - X) & \quad \text{if } XW1 \geq 0 \\
+	0                      & \quad \text{if } XW1 < 0
+\end{cases}\\
+\end{split}
+\end{equation*}
+
+
+
+
+
+
+\end{document}
