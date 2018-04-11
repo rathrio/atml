@@ -1,0 +1,140 @@
+Autoencoder Epoch [1/10], Step [100/600], Loss: 0.0879
+Autoencoder Epoch [1/10], Step [200/600], Loss: 0.0689
+Autoencoder Epoch [1/10], Step [300/600], Loss: 0.0631
+Autoencoder Epoch [1/10], Step [400/600], Loss: 0.0560
+Autoencoder Epoch [1/10], Step [500/600], Loss: 0.0520
+Autoencoder Epoch [1/10], Step [600/600], Loss: 0.0490
+===> Avg. PSNR: 13.0183 dB
+Autoencoder Epoch [2/10], Step [100/600], Loss: 0.0468
+Autoencoder Epoch [2/10], Step [200/600], Loss: 0.0478
+Autoencoder Epoch [2/10], Step [300/600], Loss: 0.0454
+Autoencoder Epoch [2/10], Step [400/600], Loss: 0.0448
+Autoencoder Epoch [2/10], Step [500/600], Loss: 0.0425
+Autoencoder Epoch [2/10], Step [600/600], Loss: 0.0452
+===> Avg. PSNR: 13.4566 dB
+Autoencoder Epoch [3/10], Step [100/600], Loss: 0.0449
+Autoencoder Epoch [3/10], Step [200/600], Loss: 0.0448
+Autoencoder Epoch [3/10], Step [300/600], Loss: 0.0473
+Autoencoder Epoch [3/10], Step [400/600], Loss: 0.0418
+Autoencoder Epoch [3/10], Step [500/600], Loss: 0.0428
+Autoencoder Epoch [3/10], Step [600/600], Loss: 0.0436
+===> Avg. PSNR: 13.6489 dB
+Autoencoder Epoch [4/10], Step [100/600], Loss: 0.0430
+Autoencoder Epoch [4/10], Step [200/600], Loss: 0.0442
+Autoencoder Epoch [4/10], Step [300/600], Loss: 0.0406
+Autoencoder Epoch [4/10], Step [400/600], Loss: 0.0417
+Autoencoder Epoch [4/10], Step [500/600], Loss: 0.0432
+Autoencoder Epoch [4/10], Step [600/600], Loss: 0.0418
+===> Avg. PSNR: 13.8174 dB
+Autoencoder Epoch [5/10], Step [100/600], Loss: 0.0425
+Autoencoder Epoch [5/10], Step [200/600], Loss: 0.0418
+Autoencoder Epoch [5/10], Step [300/600], Loss: 0.0435
+Autoencoder Epoch [5/10], Step [400/600], Loss: 0.0398
+Autoencoder Epoch [5/10], Step [500/600], Loss: 0.0410
+Autoencoder Epoch [5/10], Step [600/600], Loss: 0.0416
+===> Avg. PSNR: 13.9244 dB
+Autoencoder Epoch [6/10], Step [100/600], Loss: 0.0408
+Autoencoder Epoch [6/10], Step [200/600], Loss: 0.0389
+Autoencoder Epoch [6/10], Step [300/600], Loss: 0.0408
+Autoencoder Epoch [6/10], Step [400/600], Loss: 0.0395
+Autoencoder Epoch [6/10], Step [500/600], Loss: 0.0384
+Autoencoder Epoch [6/10], Step [600/600], Loss: 0.0395
+===> Avg. PSNR: 14.0197 dB
+Autoencoder Epoch [7/10], Step [100/600], Loss: 0.0405
+Autoencoder Epoch [7/10], Step [200/600], Loss: 0.0400
+Autoencoder Epoch [7/10], Step [300/600], Loss: 0.0365
+Autoencoder Epoch [7/10], Step [400/600], Loss: 0.0410
+Autoencoder Epoch [7/10], Step [500/600], Loss: 0.0413
+Autoencoder Epoch [7/10], Step [600/600], Loss: 0.0413
+===> Avg. PSNR: 14.1103 dB
+Autoencoder Epoch [8/10], Step [100/600], Loss: 0.0379
+Autoencoder Epoch [8/10], Step [200/600], Loss: 0.0391
+Autoencoder Epoch [8/10], Step [300/600], Loss: 0.0411
+Autoencoder Epoch [8/10], Step [400/600], Loss: 0.0382
+Autoencoder Epoch [8/10], Step [500/600], Loss: 0.0376
+Autoencoder Epoch [8/10], Step [600/600], Loss: 0.0382
+===> Avg. PSNR: 14.1865 dB
+Autoencoder Epoch [9/10], Step [100/600], Loss: 0.0376
+Autoencoder Epoch [9/10], Step [200/600], Loss: 0.0391
+Autoencoder Epoch [9/10], Step [300/600], Loss: 0.0379
+Autoencoder Epoch [9/10], Step [400/600], Loss: 0.0384
+Autoencoder Epoch [9/10], Step [500/600], Loss: 0.0397
+Autoencoder Epoch [9/10], Step [600/600], Loss: 0.0384
+===> Avg. PSNR: 14.2533 dB
+Autoencoder Epoch [10/10], Step [100/600], Loss: 0.0377
+Autoencoder Epoch [10/10], Step [200/600], Loss: 0.0378
+Autoencoder Epoch [10/10], Step [300/600], Loss: 0.0382
+Autoencoder Epoch [10/10], Step [400/600], Loss: 0.0372
+Autoencoder Epoch [10/10], Step [500/600], Loss: 0.0377
+Autoencoder Epoch [10/10], Step [600/600], Loss: 0.0371
+===> Avg. PSNR: 14.2941 dB
+Linear classifier Epoch: [0][0/600]	Prec@1 11.000 (11.000)	Prec@5 61.000 (61.000)
+Linear classifier Epoch: [0][100/600]	Prec@1 68.000 (46.762)	Prec@5 95.000 (83.703)
+Linear classifier Epoch: [0][200/600]	Prec@1 79.000 (62.224)	Prec@5 97.000 (90.622)
+Linear classifier Epoch: [0][300/600]	Prec@1 83.000 (68.641)	Prec@5 98.000 (93.103)
+Linear classifier Epoch: [0][400/600]	Prec@1 83.000 (72.037)	Prec@5 97.000 (94.359)
+Linear classifier Epoch: [0][500/600]	Prec@1 88.000 (74.295)	Prec@5 99.000 (95.170)
+===>>>	Prec@1 (85.310)	Prec@5 (98.880)
+Linear classifier Epoch: [1][0/600]	Prec@1 86.000 (86.000)	Prec@5 100.000 (100.000)
+Linear classifier Epoch: [1][100/600]	Prec@1 81.000 (84.505)	Prec@5 99.000 (98.644)
+Linear classifier Epoch: [1][200/600]	Prec@1 87.000 (84.995)	Prec@5 100.000 (98.771)
+Linear classifier Epoch: [1][300/600]	Prec@1 89.000 (84.857)	Prec@5 100.000 (98.781)
+Linear classifier Epoch: [1][400/600]	Prec@1 84.000 (84.980)	Prec@5 98.000 (98.776)
+Linear classifier Epoch: [1][500/600]	Prec@1 87.000 (85.098)	Prec@5 98.000 (98.768)
+===>>>	Prec@1 (86.640)	Prec@5 (99.100)
+Linear classifier Epoch: [2][0/600]	Prec@1 91.000 (91.000)	Prec@5 100.000 (100.000)
+Linear classifier Epoch: [2][100/600]	Prec@1 76.000 (85.693)	Prec@5 98.000 (98.842)
+Linear classifier Epoch: [2][200/600]	Prec@1 89.000 (85.552)	Prec@5 98.000 (98.896)
+Linear classifier Epoch: [2][300/600]	Prec@1 95.000 (85.914)	Prec@5 100.000 (98.937)
+Linear classifier Epoch: [2][400/600]	Prec@1 85.000 (85.950)	Prec@5 99.000 (98.925)
+Linear classifier Epoch: [2][500/600]	Prec@1 87.000 (86.076)	Prec@5 99.000 (98.944)
+===>>>	Prec@1 (87.090)	Prec@5 (99.150)
+Linear classifier Epoch: [3][0/600]	Prec@1 89.000 (89.000)	Prec@5 98.000 (98.000)
+Linear classifier Epoch: [3][100/600]	Prec@1 88.000 (86.624)	Prec@5 100.000 (99.050)
+Linear classifier Epoch: [3][200/600]	Prec@1 86.000 (86.542)	Prec@5 99.000 (99.015)
+Linear classifier Epoch: [3][300/600]	Prec@1 89.000 (86.651)	Prec@5 99.000 (99.050)
+Linear classifier Epoch: [3][400/600]	Prec@1 87.000 (86.589)	Prec@5 98.000 (99.020)
+Linear classifier Epoch: [3][500/600]	Prec@1 87.000 (86.633)	Prec@5 100.000 (99.046)
+===>>>	Prec@1 (87.340)	Prec@5 (99.100)
+Linear classifier Epoch: [4][0/600]	Prec@1 83.000 (83.000)	Prec@5 99.000 (99.000)
+Linear classifier Epoch: [4][100/600]	Prec@1 85.000 (86.604)	Prec@5 99.000 (99.119)
+Linear classifier Epoch: [4][200/600]	Prec@1 83.000 (86.373)	Prec@5 99.000 (99.015)
+Linear classifier Epoch: [4][300/600]	Prec@1 90.000 (86.555)	Prec@5 100.000 (99.000)
+Linear classifier Epoch: [4][400/600]	Prec@1 83.000 (86.603)	Prec@5 100.000 (99.002)
+Linear classifier Epoch: [4][500/600]	Prec@1 84.000 (86.663)	Prec@5 100.000 (99.024)
+===>>>	Prec@1 (87.400)	Prec@5 (99.090)
+Linear classifier Epoch: [5][0/600]	Prec@1 86.000 (86.000)	Prec@5 99.000 (99.000)
+Linear classifier Epoch: [5][100/600]	Prec@1 86.000 (86.871)	Prec@5 99.000 (99.079)
+Linear classifier Epoch: [5][200/600]	Prec@1 89.000 (86.871)	Prec@5 99.000 (99.109)
+Linear classifier Epoch: [5][300/600]	Prec@1 88.000 (86.867)	Prec@5 98.000 (99.080)
+Linear classifier Epoch: [5][400/600]	Prec@1 89.000 (86.818)	Prec@5 100.000 (99.047)
+Linear classifier Epoch: [5][500/600]	Prec@1 84.000 (86.868)	Prec@5 99.000 (99.048)
+===>>>	Prec@1 (87.420)	Prec@5 (99.090)
+Linear classifier Epoch: [6][0/600]	Prec@1 88.000 (88.000)	Prec@5 99.000 (99.000)
+Linear classifier Epoch: [6][100/600]	Prec@1 86.000 (86.564)	Prec@5 98.000 (99.010)
+Linear classifier Epoch: [6][200/600]	Prec@1 88.000 (86.403)	Prec@5 99.000 (99.095)
+Linear classifier Epoch: [6][300/600]	Prec@1 88.000 (86.532)	Prec@5 99.000 (99.017)
+Linear classifier Epoch: [6][400/600]	Prec@1 89.000 (86.633)	Prec@5 99.000 (99.055)
+Linear classifier Epoch: [6][500/600]	Prec@1 91.000 (86.653)	Prec@5 100.000 (99.030)
+===>>>	Prec@1 (87.420)	Prec@5 (99.090)
+Linear classifier Epoch: [7][0/600]	Prec@1 90.000 (90.000)	Prec@5 100.000 (100.000)
+Linear classifier Epoch: [7][100/600]	Prec@1 85.000 (86.743)	Prec@5 99.000 (99.000)
+Linear classifier Epoch: [7][200/600]	Prec@1 88.000 (86.652)	Prec@5 100.000 (99.045)
+Linear classifier Epoch: [7][300/600]	Prec@1 85.000 (86.894)	Prec@5 98.000 (99.063)
+Linear classifier Epoch: [7][400/600]	Prec@1 92.000 (86.810)	Prec@5 99.000 (99.045)
+Linear classifier Epoch: [7][500/600]	Prec@1 93.000 (86.663)	Prec@5 99.000 (99.034)
+===>>>	Prec@1 (87.420)	Prec@5 (99.090)
+Linear classifier Epoch: [8][0/600]	Prec@1 89.000 (89.000)	Prec@5 100.000 (100.000)
+Linear classifier Epoch: [8][100/600]	Prec@1 80.000 (86.545)	Prec@5 98.000 (99.030)
+Linear classifier Epoch: [8][200/600]	Prec@1 88.000 (86.577)	Prec@5 98.000 (99.020)
+Linear classifier Epoch: [8][300/600]	Prec@1 86.000 (86.684)	Prec@5 98.000 (99.060)
+Linear classifier Epoch: [8][400/600]	Prec@1 93.000 (86.673)	Prec@5 99.000 (99.025)
+Linear classifier Epoch: [8][500/600]	Prec@1 85.000 (86.754)	Prec@5 98.000 (99.026)
+===>>>	Prec@1 (87.420)	Prec@5 (99.090)
+Linear classifier Epoch: [9][0/600]	Prec@1 88.000 (88.000)	Prec@5 99.000 (99.000)
+Linear classifier Epoch: [9][100/600]	Prec@1 86.000 (86.743)	Prec@5 98.000 (98.871)
+Linear classifier Epoch: [9][200/600]	Prec@1 88.000 (86.766)	Prec@5 100.000 (98.995)
+Linear classifier Epoch: [9][300/600]	Prec@1 86.000 (86.953)	Prec@5 99.000 (98.987)
+Linear classifier Epoch: [9][400/600]	Prec@1 87.000 (86.830)	Prec@5 99.000 (99.000)
+Linear classifier Epoch: [9][500/600]	Prec@1 91.000 (86.810)	Prec@5 100.000 (99.022)
+===>>>	Prec@1 (87.420)	Prec@5 (99.090)
