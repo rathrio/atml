@@ -11,7 +11,7 @@ input_size = 784
 hidden_sizes = [ 64, 128, 192, 256, 320, 384, 448, 512,576, 640, 768,896,1024]
 num_epochs = 10
 batch_size = 100
-learning_rate = 1e-5
+learning_rate = 1e-2 #0.001
 psnr_list = []
 
 
