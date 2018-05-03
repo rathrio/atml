@@ -1,0 +1,15 @@
+name: skipthoughts
+data-path: ./#give path to the sentences
+vocab-path: ./vocab.pkl #should be available after first script preparing the corpus
+save-dir: ./saver/ #path to save best models with respect to loss
+visualizer: tensorboard
+gpus: [0, 1]
+previews: 10
+epochs: 10
+batch-size: 128
+encoder-cell: lstm # would be nice to see the performance of the sru with comparison
+decoder-cell: gru
+word-dim: 300
+hidden-dim: 2400
+layers: 1
+encoder-direction: combine
