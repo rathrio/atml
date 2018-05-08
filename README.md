@@ -1,7 +1,7 @@
 Using the cluster
 =================
 
-First, make sure that you are in the Unibe network. Use a VPN if necessary.
+First, make sure that you are in the Unibe network. Use a [VPN][0] if necessary.
 
 1. ssh into the cluster (provide the password from the screenshot in the
    whatsapp group)
@@ -22,3 +22,5 @@ First, make sure that you are in the Unibe network. Use a VPN if necessary.
    ```
 
 Done!
+
+[0]: http://www.unibe.ch/university/campus_and_infrastructure/rund_um_computer/internetzugang/access_to_internal_resources_via_vpn/index_eng.html
