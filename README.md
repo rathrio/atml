@@ -1,5 +1,41 @@
+Albums directory
+----------------
+
+The albums are stored at `/var/tmp/albums/data` on `node05`. `/var/tmp/albums/data/metadata.csv` lists all 100'000+ albums with their metadata, such as ID, artist, genres, etc.
+
+The data directory itself then contains a folder for each artist which contains a folder for each album of that artist, which then contain the album covers. Note that we call the albums "masters" in the metadata CSV, a naming we adopted from the Discogs API.
+
+
+```sh
+(/var/tmp/group5) [studi9@node05 albums]$ ./tree
+data/
+    metadata.csv                   # The metadata csv with all albums
+    1095565/                       # Artist ID
+        81131/                     # Album ID
+            primary.jpg            # Front Cover
+    478444/
+        2886362/
+            primary.jpg
+    176048/
+        469595/
+            secondary.jpg          # Optional Back Cover
+            primary.jpg
+    1019012/
+        90235/
+            secondary.jpg
+            primary.jpg
+    1198129/
+        301147/
+            primary.jpg
+    673419/
+        304779/
+            secondary.jpg
+            primary.jpg
+```
+
+
 Using the cluster
-=================
+-----------------
 
 First, make sure that you are in the Unibe network. Use a [VPN][0] if necessary.
 
