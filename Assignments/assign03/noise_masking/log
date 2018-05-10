@@ -1,0 +1,206 @@
+--------------------------------------------------------------
+---------------------- Training DAE --------------------------
+--------------------------------------------------------------
+Epoch: 0, Iter:   0, Loss: 0.2296
+Epoch: 0, Iter:  50, Loss: 0.1639
+Epoch: 0, Iter: 100, Loss: 0.0971
+Epoch: 0, Iter: 150, Loss: 0.0649
+Epoch: 0, Iter: 200, Loss: 0.0495
+Epoch: 0, Iter: 250, Loss: 0.0400
+Epoch: 0, Iter: 300, Loss: 0.0359
+Epoch: 0, Iter: 350, Loss: 0.0317
+Epoch: 0, Iter: 400, Loss: 0.0304
+Epoch: 0, Iter: 450, Loss: 0.0275
+Epoch: 0, Average Loss: 0.0693, Time: 117.0631
+Epoch: 1, Iter:   0, Loss: 0.0280
+Epoch: 1, Iter:  50, Loss: 0.0253
+Epoch: 1, Iter: 100, Loss: 0.0264
+Epoch: 1, Iter: 150, Loss: 0.0262
+Epoch: 1, Iter: 200, Loss: 0.0249
+Epoch: 1, Iter: 250, Loss: 0.0224
+Epoch: 1, Iter: 300, Loss: 0.0245
+Epoch: 1, Iter: 350, Loss: 0.0219
+Epoch: 1, Iter: 400, Loss: 0.0232
+Epoch: 1, Iter: 450, Loss: 0.0232
+Epoch: 1, Average Loss: 0.0243, Time: 125.9876
+Epoch: 2, Iter:   0, Loss: 0.0228
+Epoch: 2, Iter:  50, Loss: 0.0226
+Epoch: 2, Iter: 100, Loss: 0.0223
+Epoch: 2, Iter: 150, Loss: 0.0198
+Epoch: 2, Iter: 200, Loss: 0.0207
+Epoch: 2, Iter: 250, Loss: 0.0215
+Epoch: 2, Iter: 300, Loss: 0.0212
+Epoch: 2, Iter: 350, Loss: 0.0207
+Epoch: 2, Iter: 400, Loss: 0.0192
+Epoch: 2, Iter: 450, Loss: 0.0208
+Epoch: 2, Average Loss: 0.0215, Time: 132.0538
+Epoch: 3, Iter:   0, Loss: 0.0218
+Epoch: 3, Iter:  50, Loss: 0.0207
+Epoch: 3, Iter: 100, Loss: 0.0215
+Epoch: 3, Iter: 150, Loss: 0.0218
+Epoch: 3, Iter: 200, Loss: 0.0207
+Epoch: 3, Iter: 250, Loss: 0.0202
+Epoch: 3, Iter: 300, Loss: 0.0200
+Epoch: 3, Iter: 350, Loss: 0.0195
+Epoch: 3, Iter: 400, Loss: 0.0185
+Epoch: 3, Iter: 450, Loss: 0.0201
+Epoch: 3, Average Loss: 0.0204, Time: 110.2996
+Epoch: 4, Iter:   0, Loss: 0.0197
+Epoch: 4, Iter:  50, Loss: 0.0203
+Epoch: 4, Iter: 100, Loss: 0.0189
+Epoch: 4, Iter: 150, Loss: 0.0196
+Epoch: 4, Iter: 200, Loss: 0.0199
+Epoch: 4, Iter: 250, Loss: 0.0196
+Epoch: 4, Iter: 300, Loss: 0.0190
+Epoch: 4, Iter: 350, Loss: 0.0203
+Epoch: 4, Iter: 400, Loss: 0.0207
+Epoch: 4, Iter: 450, Loss: 0.0192
+Epoch: 4, Average Loss: 0.0198, Time: 101.5016
+Epoch: 5, Iter:   0, Loss: 0.0187
+Epoch: 5, Iter:  50, Loss: 0.0204
+Epoch: 5, Iter: 100, Loss: 0.0190
+Epoch: 5, Iter: 150, Loss: 0.0203
+Epoch: 5, Iter: 200, Loss: 0.0194
+Epoch: 5, Iter: 250, Loss: 0.0185
+Epoch: 5, Iter: 300, Loss: 0.0199
+Epoch: 5, Iter: 350, Loss: 0.0182
+Epoch: 5, Iter: 400, Loss: 0.0193
+Epoch: 5, Iter: 450, Loss: 0.0193
+Epoch: 5, Average Loss: 0.0194, Time: 98.5884
+Epoch: 6, Iter:   0, Loss: 0.0196
+Epoch: 6, Iter:  50, Loss: 0.0182
+Epoch: 6, Iter: 100, Loss: 0.0194
+Epoch: 6, Iter: 150, Loss: 0.0200
+Epoch: 6, Iter: 200, Loss: 0.0208
+Epoch: 6, Iter: 250, Loss: 0.0178
+Epoch: 6, Iter: 300, Loss: 0.0186
+Epoch: 6, Iter: 350, Loss: 0.0172
+Epoch: 6, Iter: 400, Loss: 0.0187
+Epoch: 6, Iter: 450, Loss: 0.0193
+Epoch: 6, Average Loss: 0.0190, Time: 100.3121
+Epoch: 7, Iter:   0, Loss: 0.0194
+Epoch: 7, Iter:  50, Loss: 0.0191
+Epoch: 7, Iter: 100, Loss: 0.0186
+Epoch: 7, Iter: 150, Loss: 0.0182
+Epoch: 7, Iter: 200, Loss: 0.0193
+Epoch: 7, Iter: 250, Loss: 0.0190
+Epoch: 7, Iter: 300, Loss: 0.0185
+Epoch: 7, Iter: 350, Loss: 0.0190
+Epoch: 7, Iter: 400, Loss: 0.0170
+Epoch: 7, Iter: 450, Loss: 0.0189
+Epoch: 7, Average Loss: 0.0188, Time: 98.3123
+Epoch: 8, Iter:   0, Loss: 0.0185
+Epoch: 8, Iter:  50, Loss: 0.0184
+Epoch: 8, Iter: 100, Loss: 0.0188
+Epoch: 8, Iter: 150, Loss: 0.0183
+Epoch: 8, Iter: 200, Loss: 0.0180
+Epoch: 8, Iter: 250, Loss: 0.0180
+Epoch: 8, Iter: 300, Loss: 0.0192
+Epoch: 8, Iter: 350, Loss: 0.0186
+Epoch: 8, Iter: 400, Loss: 0.0194
+Epoch: 8, Iter: 450, Loss: 0.0195
+Epoch: 8, Average Loss: 0.0186, Time: 106.6653
+Epoch: 9, Iter:   0, Loss: 0.0177
+Epoch: 9, Iter:  50, Loss: 0.0189
+Epoch: 9, Iter: 100, Loss: 0.0178
+Epoch: 9, Iter: 150, Loss: 0.0184
+Epoch: 9, Iter: 200, Loss: 0.0197
+Epoch: 9, Iter: 250, Loss: 0.0198
+Epoch: 9, Iter: 300, Loss: 0.0185
+Epoch: 9, Iter: 350, Loss: 0.0167
+Epoch: 9, Iter: 400, Loss: 0.0186
+Epoch: 9, Iter: 450, Loss: 0.0202
+Epoch: 9, Average Loss: 0.0184, Time: 100.0179
+--------------------------------------------------------------
+------------------- Transfer Learning ------------------------
+--------------------------------------------------------------
+Epoch: 0, Average Loss: 2.1825, Time: 3.3917
+Epoch: 0, Test Acc: 0.4535
+--------------------------------------------------------------
+Epoch: 1, Average Loss: 1.8997, Time: 3.4935
+Epoch: 1, Test Acc: 0.5069
+--------------------------------------------------------------
+Epoch: 2, Average Loss: 1.6162, Time: 3.6238
+Epoch: 2, Test Acc: 0.5833
+--------------------------------------------------------------
+Epoch: 3, Average Loss: 1.3762, Time: 3.6157
+Epoch: 3, Test Acc: 0.6729
+--------------------------------------------------------------
+Epoch: 4, Average Loss: 1.1925, Time: 3.9147
+Epoch: 4, Test Acc: 0.7335
+--------------------------------------------------------------
+Epoch: 5, Average Loss: 1.0260, Time: 4.0676
+Epoch: 5, Test Acc: 0.7677
+--------------------------------------------------------------
+Epoch: 6, Average Loss: 0.9101, Time: 4.5489
+Epoch: 6, Test Acc: 0.7748
+--------------------------------------------------------------
+Epoch: 7, Average Loss: 0.8416, Time: 5.0364
+Epoch: 7, Test Acc: 0.7935
+--------------------------------------------------------------
+Epoch: 8, Average Loss: 0.7510, Time: 5.2916
+Epoch: 8, Test Acc: 0.8108
+--------------------------------------------------------------
+Epoch: 9, Average Loss: 0.6964, Time: 4.8474
+Epoch: 9, Test Acc: 0.8208
+--------------------------------------------------------------
+Epoch: 10, Average Loss: 0.6459, Time: 4.2318
+Epoch: 10, Test Acc: 0.8266
+--------------------------------------------------------------
+Epoch: 11, Average Loss: 0.6029, Time: 3.8067
+Epoch: 11, Test Acc: 0.8357
+--------------------------------------------------------------
+Epoch: 12, Average Loss: 0.5682, Time: 3.5082
+Epoch: 12, Test Acc: 0.8395
+--------------------------------------------------------------
+Epoch: 13, Average Loss: 0.5413, Time: 3.7651
+Epoch: 13, Test Acc: 0.8435
+--------------------------------------------------------------
+Epoch: 14, Average Loss: 0.5177, Time: 4.2359
+Epoch: 14, Test Acc: 0.8487
+--------------------------------------------------------------
+Epoch: 15, Average Loss: 0.4999, Time: 4.5213
+Epoch: 15, Test Acc: 0.8499
+--------------------------------------------------------------
+Epoch: 16, Average Loss: 0.4761, Time: 5.0843
+Epoch: 16, Test Acc: 0.8567
+--------------------------------------------------------------
+Epoch: 17, Average Loss: 0.4524, Time: 4.9530
+Epoch: 17, Test Acc: 0.8559
+--------------------------------------------------------------
+Epoch: 18, Average Loss: 0.4359, Time: 4.9302
+Epoch: 18, Test Acc: 0.8630
+--------------------------------------------------------------
+Epoch: 19, Average Loss: 0.4334, Time: 4.4034
+Epoch: 19, Test Acc: 0.8644
+--------------------------------------------------------------
+Epoch: 20, Average Loss: 0.4053, Time: 3.9382
+Epoch: 20, Test Acc: 0.8683
+--------------------------------------------------------------
+Epoch: 21, Average Loss: 0.3950, Time: 3.4535
+Epoch: 21, Test Acc: 0.8712
+--------------------------------------------------------------
+Epoch: 22, Average Loss: 0.3824, Time: 3.7277
+Epoch: 22, Test Acc: 0.8726
+--------------------------------------------------------------
+Epoch: 23, Average Loss: 0.3706, Time: 4.1892
+Epoch: 23, Test Acc: 0.8755
+--------------------------------------------------------------
+Epoch: 24, Average Loss: 0.3632, Time: 4.6662
+Epoch: 24, Test Acc: 0.8773
+--------------------------------------------------------------
+Epoch: 25, Average Loss: 0.3584, Time: 4.8457
+Epoch: 25, Test Acc: 0.8797
+--------------------------------------------------------------
+Epoch: 26, Average Loss: 0.3544, Time: 5.1452
+Epoch: 26, Test Acc: 0.8809
+--------------------------------------------------------------
+Epoch: 27, Average Loss: 0.3382, Time: 4.5466
+Epoch: 27, Test Acc: 0.8829
+--------------------------------------------------------------
+Epoch: 28, Average Loss: 0.3334, Time: 4.2489
+Epoch: 28, Test Acc: 0.8843
+--------------------------------------------------------------
+Epoch: 29, Average Loss: 0.3300, Time: 3.4718
+Epoch: 29, Test Acc: 0.8867
+--------------------------------------------------------------

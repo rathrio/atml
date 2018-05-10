@@ -1,0 +1,115 @@
+--------------------------------------------------------------
+---------------------- Training DAE --------------------------
+--------------------------------------------------------------
+Epoch: 0, Iter:   0, Loss: 0.2290
+Epoch: 0, Iter:  50, Loss: 0.1701
+Epoch: 0, Iter: 100, Loss: 0.1063
+Epoch: 0, Iter: 150, Loss: 0.0738
+Epoch: 0, Iter: 200, Loss: 0.0588
+Epoch: 0, Iter: 250, Loss: 0.0505
+Epoch: 0, Iter: 300, Loss: 0.0462
+Epoch: 0, Iter: 350, Loss: 0.0430
+Epoch: 0, Iter: 400, Loss: 0.0408
+Epoch: 0, Iter: 450, Loss: 0.0385
+Epoch: 0, Average Loss: 0.0785, Time: 108.0256
+Epoch: 1, Iter:   0, Loss: 0.0393
+Epoch: 1, Iter:  50, Loss: 0.0372
+Epoch: 1, Iter: 100, Loss: 0.0372
+Epoch: 1, Iter: 150, Loss: 0.0378
+Epoch: 1, Iter: 200, Loss: 0.0356
+Epoch: 1, Iter: 250, Loss: 0.0338
+Epoch: 1, Iter: 300, Loss: 0.0358
+Epoch: 1, Iter: 350, Loss: 0.0327
+Epoch: 1, Iter: 400, Loss: 0.0341
+Epoch: 1, Iter: 450, Loss: 0.0340
+Epoch: 1, Average Loss: 0.0356, Time: 98.8777
+Epoch: 2, Iter:   0, Loss: 0.0337
+Epoch: 2, Iter:  50, Loss: 0.0340
+Epoch: 2, Iter: 100, Loss: 0.0323
+Epoch: 2, Iter: 150, Loss: 0.0298
+Epoch: 2, Iter: 200, Loss: 0.0314
+Epoch: 2, Iter: 250, Loss: 0.0315
+Epoch: 2, Iter: 300, Loss: 0.0296
+Epoch: 2, Iter: 350, Loss: 0.0295
+Epoch: 2, Iter: 400, Loss: 0.0282
+Epoch: 2, Iter: 450, Loss: 0.0306
+Epoch: 2, Average Loss: 0.0312, Time: 93.8072
+Epoch: 3, Iter:   0, Loss: 0.0312
+Epoch: 3, Iter:  50, Loss: 0.0295
+Epoch: 3, Iter: 100, Loss: 0.0297
+Epoch: 3, Iter: 150, Loss: 0.0307
+Epoch: 3, Iter: 200, Loss: 0.0304
+Epoch: 3, Iter: 250, Loss: 0.0281
+Epoch: 3, Iter: 300, Loss: 0.0285
+Epoch: 3, Iter: 350, Loss: 0.0282
+Epoch: 3, Iter: 400, Loss: 0.0260
+Epoch: 3, Iter: 450, Loss: 0.0288
+Epoch: 3, Average Loss: 0.0290, Time: 99.0670
+Epoch: 4, Iter:   0, Loss: 0.0283
+Epoch: 4, Iter:  50, Loss: 0.0294
+Epoch: 4, Iter: 100, Loss: 0.0265
+Epoch: 4, Iter: 150, Loss: 0.0267
+Epoch: 4, Iter: 200, Loss: 0.0273
+Epoch: 4, Iter: 250, Loss: 0.0281
+Epoch: 4, Iter: 300, Loss: 0.0276
+Epoch: 4, Iter: 350, Loss: 0.0279
+Epoch: 4, Iter: 400, Loss: 0.0281
+Epoch: 4, Iter: 450, Loss: 0.0255
+Epoch: 4, Average Loss: 0.0276, Time: 93.9187
+Epoch: 5, Iter:   0, Loss: 0.0269
+Epoch: 5, Iter:  50, Loss: 0.0276
+Epoch: 5, Iter: 100, Loss: 0.0258
+Epoch: 5, Iter: 150, Loss: 0.0270
+Epoch: 5, Iter: 200, Loss: 0.0260
+Epoch: 5, Iter: 250, Loss: 0.0261
+Epoch: 5, Iter: 300, Loss: 0.0267
+Epoch: 5, Iter: 350, Loss: 0.0250
+Epoch: 5, Iter: 400, Loss: 0.0262
+Epoch: 5, Iter: 450, Loss: 0.0275
+Epoch: 5, Average Loss: 0.0267, Time: 95.4530
+Epoch: 6, Iter:   0, Loss: 0.0270
+Epoch: 6, Iter:  50, Loss: 0.0254
+Epoch: 6, Iter: 100, Loss: 0.0263
+Epoch: 6, Iter: 150, Loss: 0.0269
+Epoch: 6, Iter: 200, Loss: 0.0288
+Epoch: 6, Iter: 250, Loss: 0.0245
+Epoch: 6, Iter: 300, Loss: 0.0269
+Epoch: 6, Iter: 350, Loss: 0.0240
+Epoch: 6, Iter: 400, Loss: 0.0261
+Epoch: 6, Iter: 450, Loss: 0.0261
+Epoch: 6, Average Loss: 0.0261, Time: 95.8043
+Epoch: 7, Iter:   0, Loss: 0.0261
+Epoch: 7, Iter:  50, Loss: 0.0254
+Epoch: 7, Iter: 100, Loss: 0.0254
+Epoch: 7, Iter: 150, Loss: 0.0256
+Epoch: 7, Iter: 200, Loss: 0.0255
+Epoch: 7, Iter: 250, Loss: 0.0258
+Epoch: 7, Iter: 300, Loss: 0.0258
+Epoch: 7, Iter: 350, Loss: 0.0257
+Epoch: 7, Iter: 400, Loss: 0.0249
+Epoch: 7, Iter: 450, Loss: 0.0263
+Epoch: 7, Average Loss: 0.0255, Time: 103.8991
+Epoch: 8, Iter:   0, Loss: 0.0249
+Epoch: 8, Iter:  50, Loss: 0.0253
+Epoch: 8, Iter: 100, Loss: 0.0258
+Epoch: 8, Iter: 150, Loss: 0.0246
+Epoch: 8, Iter: 200, Loss: 0.0249
+Epoch: 8, Iter: 250, Loss: 0.0236
+Epoch: 8, Iter: 300, Loss: 0.0251
+Epoch: 8, Iter: 350, Loss: 0.0252
+Epoch: 8, Iter: 400, Loss: 0.0257
+Epoch: 8, Iter: 450, Loss: 0.0265
+Epoch: 8, Average Loss: 0.0252, Time: 93.3619
+Epoch: 9, Iter:   0, Loss: 0.0238
+Epoch: 9, Iter:  50, Loss: 0.0248
+Epoch: 9, Iter: 100, Loss: 0.0249
+Epoch: 9, Iter: 150, Loss: 0.0253
+Epoch: 9, Iter: 200, Loss: 0.0269
+Epoch: 9, Iter: 250, Loss: 0.0251
+Epoch: 9, Iter: 300, Loss: 0.0248
+Epoch: 9, Iter: 350, Loss: 0.0232
+Epoch: 9, Iter: 400, Loss: 0.0254
+Epoch: 9, Iter: 450, Loss: 0.0259
+Epoch: 9, Average Loss: 0.0248, Time: 93.7490
+--------------------------------------------------------------
+
