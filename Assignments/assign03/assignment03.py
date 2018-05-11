@@ -12,8 +12,8 @@ import sys
 
 
 # Set Hyperparameters
-noise_type = 'noise_masking'  # Possible values: 'gaussian_add', 'noise_salt_pepper', 'noise_masking' or None
-finetune = False
+noise_type = None  # Possible values: 'gaussian_add', 'noise_salt_pepper', 'noise_masking' or None
+finetune = True
 num_epochs = 10
 batch_size = 128
 learning_rate = 0.001
@@ -336,7 +336,9 @@ print('--------------------------------------------------------------')
 #                                                                     #
 #######################################################################
 clf = Classifier()
-optimizer = torch.optim.Adam(clf.parameters(), lr=learning_rate)
+#if finetune is true, then send encoder params for optimization else prevent encoder to optimize (use as fixed encoder)
+params = list(clf.parameters()) + list(encoder.parameters()) if finetune else clf.parameters()
+optimizer = torch.optim.Adam(params, lr=learning_rate)
 loss_func = nn.CrossEntropyLoss()
 #######################################################################
 #                         END OF YOUR CODE                            #
