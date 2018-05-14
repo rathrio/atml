@@ -4,7 +4,7 @@ import os
 import sys
 import csv
 
-with open("../data/metadata.csv") as csvfile:
+with open("data/metadata.csv") as csvfile:
     reader = csv.reader(csvfile, delimiter=';')
     next(reader, None) # skip headers
 
