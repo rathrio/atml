@@ -33,6 +33,7 @@ def load_dataset(name='f8k', load_test=False):
 
         # Image features
         train_ims = numpy.load(loc+name+'_train_ims.npy')
+
         dev_ims = numpy.load(loc+name+'_dev_ims.npy')
 
         return (train_caps, train_ims), (dev_caps, dev_ims)
