@@ -1,22 +1,7 @@
 Albums 
 ------
 
-### Genre Distribution
-
-* Electronic
-* Rock
-* Pop
-* Jazz
-* Hip Hop
-* Funk / Soul
-* Folk, World, & Country
-* Classical
-* Reggae
-* Non-Music
-* Latin
-* Blues
-* Children's
-* Stage & Screen
+![Albums per Genre](https://i.imgur.com/iZj7fAj.png)
 
 ### Location on the Server
 
