@@ -34,13 +34,16 @@ vgg_model.classifier = nn.Sequential(*list(vgg_model.classifier.children())[:-3]
 vgg_model.cuda()
 vgg_model.eval()
 
-
+i = 0
 with open("data/metadata.csv") as csvfile:
     reader = csv.reader(csvfile, delimiter=';')
     next(reader, None) # skip headers
     feature_list = []
 
     for row in reader:
+          if i == 3:
+            break
+
           album_id = row[0]
           title = row[1]
           artist_id = row[3]
@@ -52,6 +55,9 @@ with open("data/metadata.csv") as csvfile:
           # want to test locally.
           if not os.path.exists(image_path):
             continue
+
+          # Write title "sentence"
+          titles_file.write(f'{title} .\n')
 
           # Get features and dump feature
           file_path = ''
@@ -66,9 +72,7 @@ with open("data/metadata.csv") as csvfile:
                   features = vgg_model(inputs)
                   feature_list.append(features)
 
+          i += 1
+
           # save with numpy here
     np.save('/var/tmp/albums/music_alb.npy', feature_list)
-
-    # Write title "sentence"
-    titles_file.write(f'{title} .\n')
-
