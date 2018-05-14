@@ -4,6 +4,13 @@ import os
 import sys
 import csv
 
+# Place this script at /var/tmp/albums/load_albums.py
+
+titles_file = open('/var/tmp/albums/titles.txt', 'w')
+
+# To test locally
+# titles_file = open('./titles.txt', 'w')
+
 with open("data/metadata.csv") as csvfile:
     reader = csv.reader(csvfile, delimiter=';')
     next(reader, None) # skip headers
@@ -16,11 +23,13 @@ with open("data/metadata.csv") as csvfile:
       main_genre = genres.split("|")[0]
       image_path = f'/var/tmp/albums/data/{album_id}/{artist_id}/primary.jpg'
 
-      # Comment this back in to skip albums that don't have a primary image
-      # if not os.path.exists(image_path):
-      #   continue
+      # Skip albums that don't have a primary image. Comment this out if you
+      # want to test locally.
+      if not os.path.exists(image_path):
+        continue
 
-      print(title)
-      print(main_genre)
-      print(image_path)
-      print()
+      # Get features and dump feature
+      # TODO OTI
+
+      # Write title "sentence"
+      titles_file.write(f'{title} .\n')
