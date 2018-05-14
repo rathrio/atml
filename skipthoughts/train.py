@@ -170,6 +170,14 @@ class Trainer(object):
         self.legend = ["average"] + ["decoder_{}".format(i)
                                      for i in range(self.model.n_decoders)]
 
+        # todo code to load saved model dict
+        print('Loading model...')
+        # pkl.dump(model_options, open('%s_params_%s.pkl' % (saveto, encoder), 'wb'))
+        self.model.load_state_dict(torch.load('/var/tmp/save/20180508-19-5410-skipthoughts/model-e01-s0619000-2.9422'))
+        #self.model.load_state_dict(torch.load('saver1/20180506-13-0348-skipthoughts/model-e04-s0024000-3.0225'))
+
+        print('Done')
+
         if gpu_devices:
             self.model = model.cuda()
 
@@ -232,7 +240,7 @@ class Trainer(object):
 
         return data
 
-    def prepare_batch(self, batch_data, volatile=False):
+    def prepare_batch(self, batch_data):
         x, x_lens, ys, ys_lens = batch_data
         batch_dim = 0 if self.batch_first else 1
         context_dim = 1 if self.batch_first else 0
@@ -247,12 +255,12 @@ class Trainer(object):
         x = x[x_idx]
         ys = torch.gather(ys, batch_dim, ys_idx.unsqueeze(-1).expand_as(ys))
 
-        x = Variable(x, volatile=volatile)
-        x_lens = Variable(x_lens, volatile=volatile)
-        ys_i = Variable(ys[..., :-1], volatile=volatile).contiguous()
-        ys_t = Variable(ys[..., 1:], volatile=volatile).contiguous()
-        ys_lens = Variable(ys_lens - 1, volatile=volatile)
-        xys_idx = Variable(xys_idx, volatile=volatile)
+        x = Variable(x)
+        x_lens = Variable(x_lens)
+        ys_i = Variable(ys[..., :-1]).contiguous()
+        ys_t = Variable(ys[..., 1:]).contiguous()
+        ys_lens = Variable(ys_lens - 1)
+        xys_idx = Variable(xys_idx)
 
         if self.is_cuda:
             x = x.cuda(async=True)
@@ -351,11 +359,11 @@ class Trainer(object):
                              dim=0,
                              module_kwargs=None)
 
-    def step(self, step, batch_data, volatile=True, title=None):
+    def step(self, step, batch_data,  title=None):
         if len(self.gpu_devices) > 0:
             processed_data = self.prepare_batches(batch_data,
                                               chunks=len(self.gpu_devices),
-                                              volatile=volatile)
+                                              )
             x, x_lens, ys_i, ys_t, ys_lens, xys_idx = processed_data
             inputs = (x, x_lens, ys_i, ys_lens, xys_idx)
             dec_logits, h = self.forward(inputs)
@@ -379,19 +387,18 @@ class Trainer(object):
         return merged_data, dec_logits, loss_batch, loss_step
 
     def step_val(self, step, batch_data):
-        data, dec_logits, loss_b, loss_s = self.step(step, batch_data,
-                                                     volatile=True,
-                                                     title="Validation Loss")
-        sents = self.val_sents(data, dec_logits)
-        text = self.val_text(*sents)
+        with torch.no_grad():
+            data, dec_logits, loss_b, loss_s = self.step(step, batch_data,
+                                                         title="Validation Loss")
+            sents = self.val_sents(data, dec_logits)
+            text = self.val_text(*sents)
 
-        self.logger.add_text("Validation Examples", text)
+            self.logger.add_text("Validation Examples", text)
 
-        return loss_b, loss_s
+            return loss_b, loss_s
 
     def step_train(self, step, batch_data):
         data, dec_logits, loss_b, loss_s = self.step(step, batch_data,
-                                                     volatile=False,
                                                      title="Training Loss")
 
         return loss_b, loss_s
@@ -403,7 +410,7 @@ class Trainer(object):
 
     def train(self):
         optimizer = O.Adam([p for p in self.model.parameters()
-                            if p.requires_grad], amsgrad= True)
+                            if p.requires_grad],  amsgrad=True)
         step = 0
         t = tqdm.tqdm()
 
