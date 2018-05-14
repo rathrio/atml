@@ -1,17 +1,23 @@
 Albums directory
 ----------------
 
-The albums are stored at `/var/tmp/albums/data` on `node05`. `/var/tmp/albums/data/metadata.csv` lists all 100'000+ albums with their metadata, such as ID, artist, genres, etc.
+The albums are stored at `/var/tmp/albums/data` on `node05`.
+`/var/tmp/albums/data/metadata.csv` lists all 100'000+ albums with their
+metadata, such as ID, artist, genres, etc.
 
-The data directory itself then contains a folder for each artist which contains a folder for each album of that artist, which then contain the album covers. Note that we call the albums "masters" in the metadata CSV, a naming we adopted from the Discogs API.
+The data directory itself then contains a folder for each album which contains a
+folder for each artist of that album, which then contain the album covers. Note
+that we call the albums "masters" in the metadata CSV, a naming we adopted from
+the Discogs API. Should be the other way around but I messed it up in the
+download script.
 
 
 ```sh
 (/var/tmp/group5) [studi9@node05 albums]$ ./tree
 data/
     metadata.csv                   # The metadata csv with all albums
-    1095565/                       # Artist ID
-        81131/                     # Album ID
+    1095565/                       # Album ID because I messed up the order
+        81131/                     # Artist ID
             primary.jpg            # Front Cover
     478444/
         2886362/
