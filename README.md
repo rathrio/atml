@@ -1,5 +1,24 @@
-Albums directory
-----------------
+Albums 
+------
+
+### Genre Distribution
+
+* Electronic
+* Rock
+* Pop
+* Jazz
+* Hip Hop
+* Funk / Soul
+* Folk, World, & Country
+* Classical
+* Reggae
+* Non-Music
+* Latin
+* Blues
+* Children's
+* Stage & Screen
+
+### Location on the Server
 
 The albums are stored at `/var/tmp/albums/data` on `node05`.
 `/var/tmp/albums/data/metadata.csv` lists all 100'000+ albums with their
