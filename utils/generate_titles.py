@@ -13,7 +13,7 @@ titles_file = open('/var/tmp/albums/title_context.txt', 'w')
 
 with open("data/metadata.csv") as csvfile:
     reader = csv.reader(csvfile, delimiter=';')
-    next(reader, None) # skip headers
+    next(reader, None)  # skip headers
 
     for row in reader:
       title = row[1]
