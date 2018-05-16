@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PropertiesComponent">
+    <property name="settings.editor.selected.configurable" value="PyConsoleConfigurable.Python Console" />
+  </component>
+  <component name="PyConsoleOptionsProvider">
+    <option name="myPythonConsoleState">
+      <console-settings sdk-home="C:\Program Files\Anaconda3\python.exe">
+        <option name="mySdkHome" value="C:\Program Files\Anaconda3\python.exe" />
+      </console-settings>
+    </option>
+  </component>
+</project>
