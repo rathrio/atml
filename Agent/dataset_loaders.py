@@ -2,6 +2,8 @@ from torch.utils.data import Dataset
 import numpy as np
 import csv
 
+# Place this at /var/tmp/albums/dataset_loaders.py or adjust the passed in
+# paths accordingly.
 
 class MusicDataset(Dataset):
     """An override of class Dataset.
