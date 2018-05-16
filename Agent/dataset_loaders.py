@@ -1,4 +1,3 @@
-
 from torch.utils.data import Dataset
 
 
@@ -10,10 +9,11 @@ class MusicDataset(Dataset):
     supporting integer indexing in range from 0 to len(self) exclusive.
     """
 
-    def __init__(self, args1,):
+    def __init__(self, path_to_metadata, path_to_vggfeatures):
         #some arguments needed for music dataset to function?
         #place init of them here, like csv, folder_loc, etc
-        self.arg1 = args1
+        self.path_to_metadata = path_to_metadata
+        self.path_to_vggfeatures = path_to_vggfeatures
 
 
 
@@ -25,5 +25,8 @@ class MusicDataset(Dataset):
 
     def __len__(self):
         return # how to get length of the dataset
+
+dataset = MusicDataset('../data/metadata.csv', 'foobar')
+
 
 
