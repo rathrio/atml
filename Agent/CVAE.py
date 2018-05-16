@@ -28,14 +28,11 @@ if CUDA:
 # DataLoader instances will load tensors directly into GPU memory
 kwargs = {'num_workers': 1, 'pin_memory': True} if CUDA else {}
 
-# Download or load downloaded  dataset
+# load downloaded  dataset
 # shuffle data at every epoch
 # load dataset
 music_dataset = MusicDataset() #if args are needed
-
 inputs_loader = DataLoader(music_dataset, batch_size=BATCH_SIZE,shuffle=True, **kwargs)
-
-
 
 class VAE(nn.Module):
     def __init__(self):
@@ -55,7 +52,7 @@ class VAE(nn.Module):
         # DECODER( put a conditional decoder here)
         # from bottleneck to hidden 400
         self.fc3 = nn.Linear(ZDIMS, 400)
-        # from hidden 400 to 784 outputs
+        # from hidden 400 to artist embedding space
         self.fc4 = nn.Linear(400, 784)
         self.sigmoid = nn.Sigmoid()
 
@@ -131,7 +128,7 @@ class VAE(nn.Module):
             # course has the highest probability.
             return mu
 
-    def decode(self, z: Variable) -> Variable:
+    def decode_artist(self, z: Variable) -> Variable:
         h3 = self.relu(self.fc3(z))
         return self.sigmoid(self.fc4(h3))
 
@@ -202,7 +199,7 @@ def train(epoch):
           epoch, train_loss / len(train_loader.dataset)))
 
 
-def test(epoch):
+def validation(epoch):
     # toggle model to test / inference mode
     model.eval()
     test_loss = 0
