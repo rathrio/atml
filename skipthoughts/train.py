@@ -446,7 +446,7 @@ class Trainer(object):
                     best_lb, best_ls = loss_b.data.item(), loss_s.data.item()
                     best_step = curr_step
 
-                if curr_step - best_step > 1000:
+                if curr_step - best_step > 40:
                     print ('moving around space lr ...')
                     lrate = lrate * 0.01
                     print('lr=', lrate)

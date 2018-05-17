@@ -146,22 +146,22 @@ def trainer(data='f30k',
             # Update
             x, im, artist, genre = img_sen_model(x, im, artist, genre)
             #make validation on inout before trainer see it
-            if numpy.mod((uidx, validFreq) == 0):
+            if numpy.mod(uidx, validFreq) == 0:
                 with torch.no_grad():
-                    (r1, r5, r10, medr) = i2t(lim, ls)
+                    (r1, r5, r10, medr) = i2t(im, s)
                     logging.info("Image to text: %.1f, %.1f, %.1f, %.1f" % (r1, r5, r10, medr))
 
-                    (r1g, r5g, r10g, medrg) = i2t(lim, lgen)
+                    (r1g, r5g, r10g, medrg) = i2t(im, genre)
                     logging.info("Image to genre: %.1f, %.1f, %.1f, %.1f" % (r1g, r5g, r10g, medrg))
 
-                    (r1a, r5a, r10a, medra) = i2t(lim, lart)
+                    (r1a, r5a, r10a, medra) = i2t(im, artist)
                     logging.info("Image to Artist: %.1f, %.1f, %.1f, %.1f" % (r1a, r5a, r10a, medra))
 
                     logging.info("Cal Recall@K ")
 
                     curr_step = uidx / validFreq
 
-                    currscore = r1 + r5 + r10 + r1s + r5s + r10s + r1a + r5a + r10a + r1g + r5g + r10g
+                    currscore = r1 + r5 + r10 + r1a + r5a + r10a + r1g + r5g + r10g
                     if currscore > curr:
                         curr = currscore
                         best_r1, best_r5, best_r10, best_medr = r1, r5, r10, medr
