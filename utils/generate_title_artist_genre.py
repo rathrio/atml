@@ -2,7 +2,9 @@
 
 import csv
 
-# Place this script at /var/tmp/albums/load_title_artist_genre.py
+# Place this script at /var/tmp/albums/generate_title_artist_genre.py
+
+titles_file = open('/var/tmp/albums/music_sentences.txt', 'w')
 
 with open("data/metadata.csv") as csvfile:
     reader = csv.reader(csvfile, delimiter=';')
@@ -15,4 +17,3 @@ with open("data/metadata.csv") as csvfile:
         print(title)
         print(artist)
         print(genre)
-        print()
