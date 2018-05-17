@@ -66,7 +66,7 @@ class PairwiseRankingLoss(torch.nn.Module):
         diagonal,diagonal1,diagonal2,  = scores.diag(), scoreaa.diag(), scoregg.diag()
 
         # compare every diagonal score to scores in its column (i.e, all contrastive images for each sentence)
-        cost_s = torch.max(Variable(torch.zeros(scores.size()[0], scores.size()[1]).cuda()), (margin-diagonal).expand_as(scores)+scores)
+        #cost_s = torch.max(Variable(torch.zeros(scores.size()[0], scores.size()[1]).cuda()), (margin-diagonal).expand_as(scores)+scores)
         #  all contrastive sentences for each image(take some margin of the l2norm of the sentence of image, and add to non-sentence scores)
         #non-setence will have high values which we wish to set to zero making score of image sentence high
         cost_im = torch.max(Variable(torch.zeros(scores.size()[0], scores.size()[1]).cuda()), (margin-diagonal).expand_as(scores).transpose(1, 0)+scores)
@@ -78,9 +78,9 @@ class PairwiseRankingLoss(torch.nn.Module):
                             (margin - diagonal2).expand_as(scores).transpose(1, 0) + scores)
 
         for i in range(scores.size()[0]):
-            cost_s[i, i] = 0
+            #cost_s[i, i] = 0
             cost_im[i, i] = 0
             cost_aa[i, i] = 0
             cost_gg[i, i] = 0
 
-        return cost_aa.sum() + cost_im.sum() +cost_gg.sum() +cost_s.sum()
+        return cost_aa.sum() + cost_im.sum() +cost_gg.sum() #+cost_s.sum()

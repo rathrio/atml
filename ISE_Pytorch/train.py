@@ -15,7 +15,7 @@ import time
 from model import Img_Sen_Artist_Ranking, PairwiseRankingLoss
 import numpy
 from tools_ import encode_sentences, encode_images
-from evaluation import i2t, t2i
+from evaluation import i2t
 
 
 
@@ -123,12 +123,9 @@ def trainer(data='f30k',
 
     # For Early-stopping
     best_r1, best_r5, best_r10, best_medr = 0.0, 0.0, 0.0, 0
-    best_r1i, best_r5i, best_r10i, best_medri = 0.0, 0.0, 0.0, 0
     best_step = 0
 
     for eidx in range(max_epochs):
-
-        logging.info('Epoch ', eidx)
 
         for x, im, artist, genre in train_iter:
             n_samples += len(x)
@@ -148,6 +145,43 @@ def trainer(data='f30k',
             genre = Variable(torch.from_numpy(genre).cuda())
             # Update
             x, im, artist, genre = img_sen_model(x, im, artist, genre)
+            #make validation on inout before trainer see it
+            if numpy.mod((uidx, validFreq) == 0):
+                (r1, r5, r10, medr) = i2t(lim, ls)
+                logging.info("Image to text: %.1f, %.1f, %.1f, %.1f" % (r1, r5, r10, medr))
+
+                (r1g, r5g, r10g, medrg) = i2t(lim, lgen)
+                logging.info("Image to genre: %.1f, %.1f, %.1f, %.1f" % (r1g, r5g, r10g, medrg))
+
+                (r1a, r5a, r10a, medra) = i2t(lim, lart)
+                logging.info("Image to Artist: %.1f, %.1f, %.1f, %.1f" % (r1a, r5a, r10a, medra))
+
+                logging.info("Cal Recall@K ")
+
+                curr_step = uidx / validFreq
+
+                currscore = r1 + r5 + r10 + r1s + r5s + r10s + r1a + r5a + r10a + r1g + r5g + r10g
+                if currscore > curr:
+                    curr = currscore
+                    best_r1, best_r5, best_r10, best_medr = r1, r5, r10, medr
+                    best_r1g, best_r5g, best_r10g, best_medrg = r1, r5, r10, medrg
+                    best_step = curr_step
+
+                    # Save model
+                    logging.info('Saving model...')
+                    pkl.dump(model_options, open('%s_params_%s.pkl' % (saveto, encoder), 'wb'))
+                    torch.save(img_sen_model.state_dict(), '%s_model_%s.pkl' % (saveto, encoder))
+                    logging.info('Done')
+
+                if curr_step - best_step > early_stop:
+                    logging.info('early stopping, jumping later ...')
+                    logging.info("Image to text: %.1f, %.1f, %.1f, %.1f" % (best_r1, best_r5, best_r10, best_medr))
+                    logging.info("Image to genre: %.1f, %.1f, %.1f, %.1f" % (best_r1g, best_r5g, best_r10g, best_medrg))
+
+                    return 0
+                    '''lrate = lrate * (0.01 ** (eidx // 10))                    
+                    for param_group in optimizer.param_groups:
+                        param_group['lr'] = lrate'''
             cost = loss_fn(im, x, artist, genre)
             optimizer.zero_grad()
             cost.backward()
@@ -159,63 +193,6 @@ def trainer(data='f30k',
             if numpy.mod(uidx, dispFreq) == 0:
                 logging.info('Epoch ', eidx, '\tUpdate@ ', uidx, '\tCost ', cost.data.item())
 
-            if numpy.mod(uidx, validFreq) == 0:
-                with torch.no_grad():
-
-                  logging.info('Computing results...')
-                  curr_model = {}
-                  curr_model['options'] = model_options
-                  curr_model['worddict'] = worddict
-                  curr_model['word_idict'] = word_idict
-                  curr_model['img_sen_model'] = img_sen_model
-  
-                  ls, lim, lgen, lart = encode_sentences(curr_model, titles), encode_images(curr_model, album_ims), \
-                                        encode_sentences(curr_model, genre_string), encode_sentences(curr_model, artist_string)
-  
-                  r_time = time.time()
-                  (r1, r5, r10, medr) = i2t(lim, ls)
-                  logging.info("Image to text: %.1f, %.1f, %.1f, %.1f" % (r1, r5, r10, medr))
-  
-                  (r1g, r5g, r10g, medrg) = i2t(lim, lgen)
-                  logging.info("Image to genre: %.1f, %.1f, %.1f, %.1f" % (r1g, r5g, r10g, medrg))
-  
-                  (r1a, r5a, r10a, medra) = i2t(lim, lart)
-                  logging.info("Image to Artist: %.1f, %.1f, %.1f, %.1f" % (r1a, r5a, r10a, medra))
-  
-                  (r1s, r5s, r10s, medrs) = t2i(lim, ls)
-                  logging.info("Text to image: %.1f, %.1f, %.1f, %.1f" % (r1s, r5s, r10s, medrs))
-  
-                  logging.info("Cal Recall@K using %ss" % (time.time() - r_time))
-  
-                  curr_step = uidx / validFreq
-  
-                  currscore = r1 + r5 + r10 + r1s + r5s + r10s + r1a + r5a + r10a + r1g + r5g + r10g
-                  if currscore > curr:
-                      curr = currscore
-                      best_r1, best_r5, best_r10, best_medr = r1, r5, r10, medr
-                      best_r1a, best_r5a, best_r10a, best_medra = r1, r5, r10, medra
-                      best_r1g, best_r5g, best_r10g, best_medrg = r1, r5, r10, medrg
-                      best_r1s, best_r5s, best_r10s, best_medrs = r1s, r5s, r10s, medrs
-                      best_step = curr_step
-  
-                      # Save model
-                      logging.info('Saving model...')
-                      pkl.dump(model_options, open('%s_params_%s.pkl' % (saveto, encoder), 'wb'))
-                      torch.save(img_sen_model.state_dict(), '%s_model_%s.pkl' % (saveto, encoder))
-                      logging.info('Done')
-  
-                  if curr_step - best_step > early_stop:
-                      logging.info('down lr ...')
-                      logging.info("Image to text: %.1f, %.1f, %.1f, %.1f" % (best_r1, best_r5, best_r10, best_medr))
-                      logging.info("Image to genre: %.1f, %.1f, %.1f, %.1f" % (best_r1g, best_r5g, best_r10g, best_medrg))
-                      logging.info("Image to artist: %.1f, %.1f, %.1f, %.1f" % (best_r1a, best_r5a, best_r10a, best_medra))
-                      logging.info("Text to image: %.1f, %.1f, %.1f, %.1f" % (best_r1s, best_r5s, best_r10s, best_medrs))
-                      return 0
-                      '''lrate = lrate * (0.01 ** (eidx // 10))
-                      logging.info('lr=', lrate)
-                      for param_group in optimizer.param_groups:
-                          param_group['lr'] = lrate'''
-                  # make lr scheduling
 
         logging.info('Seen %d samples' % n_samples)
 
