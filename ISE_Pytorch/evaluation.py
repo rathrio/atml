@@ -3,26 +3,24 @@ import torch
 from datasets import load_dataset
 from tools_ import encode_sentences, encode_images
 
-def evalrank(model, data, split='dev'):
+
+def evalrank(model, data):
     """
     Evaluate a trained model on either dev ortest
     """
 
-    print ('Loading dataset')
-    if split == 'dev':
-        X = load_dataset(data)[1]
-    else:
-        X = load_dataset(data, load_test=True)
+    print('Loading dataset')
 
+    X0, X1, _, _ = load_dataset(data)
 
-    print ('Computing results...')
-    ls = encode_sentences(model, X[0])
-    lim = encode_images(model, X[1])
+    print('Computing results...')
+    ls = encode_sentences(model, X0)
+    lim = encode_images(model, X1)
 
     (r1, r5, r10, medr) = i2t(lim, ls)
-    print ("Image to text: %.1f, %.1f, %.1f, %.1f" % (r1, r5, r10, medr))
+    print("Image to text: %.1f, %.1f, %.1f, %.1f" % (r1, r5, r10, medr))
     (r1i, r5i, r10i, medri) = t2i(lim, ls)
-    print ("Text to image: %.1f, %.1f, %.1f, %.1f" % (r1i, r5i, r10i, medri))
+    print("Text to image: %.1f, %.1f, %.1f, %.1f" % (r1i, r5i, r10i, medri))
 
 
 def i2t(images, captions, npts=None):
@@ -41,14 +39,14 @@ def i2t(images, captions, npts=None):
         im = images[5 * index].unsqueeze(0)
 
         # Compute scores
-        d = torch.mm(im, captions.t())
-        d_sorted, inds = torch.sort(d, descending=True)
-        inds = inds.data.squeeze(0).cpu().numpy()
+        d = torch.mm(im, captions.t())  # multiply a set of image norms and their caption norms
+        _, inds = torch.sort(d, descending=True)
+        inds = inds.data.squeeze(0).cpu().numpy()  # list of desending sorted high scores
 
         # Score
         rank = 1e20
         # find the highest ranking
-        for i in range(5*index, 5*index + 5, 1):
+        for i in range(5 * index, 5 * index + 5, 1):
             tmp = numpy.where(inds == i)[0][0]
             if tmp < rank:
                 rank = tmp
@@ -77,7 +75,7 @@ def t2i(images, captions, npts=None, data='f8k'):
     for index in range(npts):
 
         # Get query captions
-        queries = captions[5*index : 5*index + 5]
+        queries = captions[5 * index: 5 * index + 5]
 
         # Compute scores
         d = torch.mm(queries, ims.t())
@@ -92,4 +90,5 @@ def t2i(images, captions, npts=None, data='f8k'):
     r10 = 100.0 * len(numpy.where(ranks < 10)[0]) / len(ranks)
     medr = numpy.floor(numpy.median(ranks)) + 1
     return (r1, r5, r10, medr)
+
 

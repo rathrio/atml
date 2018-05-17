@@ -5,9 +5,10 @@ from torch import nn, optim
 from torch.autograd import Variable
 from torch.nn import functional as F
 from torch.utils.data import DataLoader
+from torch.utils.data.sampler import SubsetRandomSampler
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
-from .dataset_loaders import  MusicDataset
+from .dataset_loaders import  MusicDataset, make_stratified_splits
 
 # changed configuration to this instead of argparse for easier interaction
 CUDA = True
@@ -32,7 +33,9 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if CUDA else {}
 # shuffle data at every epoch
 # load dataset
 music_dataset = MusicDataset() #if args are needed
-inputs_loader = DataLoader(music_dataset, batch_size=BATCH_SIZE,shuffle=True, **kwargs)
+train_index, val_index = make_stratified_splits(music_dataset)
+train_loader = DataLoader(music_dataset, batch_size=BATCH_SIZE,sampler=SubsetRandomSampler(train_index), **kwargs)
+test_loader =  DataLoader(music_dataset, batch_size=BATCH_SIZE, sampler=SubsetRandomSampler(val_index), **kwargs)
 
 class VAE(nn.Module):
     def __init__(self):
@@ -138,9 +141,7 @@ class VAE(nn.Module):
         return self.decode(z), mu, logvar
 
 
-model = VAE()
-if CUDA:
-    model.cuda()
+model = VAE().cuda()
 
 
 def loss_function(recon_x, x, mu, logvar) -> Variable:
@@ -172,12 +173,9 @@ def train(epoch):
     # toggle model to train mode
     model.train()
     train_loss = 0
-    # in the case of MNIST, len(train_loader.dataset) is 60000
-    # each `data` is of BATCH_SIZE samples and has shape [128, 1, 28, 28]
+
     for batch_idx, (data, _) in enumerate(train_loader):
-        data = Variable(data)
-        if CUDA:
-            data = data.cuda()
+        data = Variable(data).cuda()
         optimizer.zero_grad()
 
         # push whole batch of data through VAE.forward() to get recon_loss

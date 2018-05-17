@@ -11,10 +11,11 @@ from vocab import build_dictionary
 import homogeneous_data
 from torch.autograd import Variable
 import time
-from model import ImgSenRanking, PairwiseRankingLoss
+from model import Img_Sen_Artist_Ranking, PairwiseRankingLoss
 import numpy
 from tools_ import encode_sentences, encode_images
 from evaluation import i2t, t2i
+
 
 
 def trainer(data='f30k',
@@ -33,8 +34,6 @@ def trainer(data='f30k',
             early_stop=20,
             lrate=1e-3,
             reload_=False):
-
-
     # Model options
     model_options = {}
     model_options['data'] = data
@@ -52,36 +51,35 @@ def trainer(data='f30k',
     model_options['lrate'] = lrate
     model_options['reload_'] = reload_
 
-    print (model_options)
+    print(model_options)
 
     # reload options
     if reload_ and os.path.exists(saveto):
-        print ('reloading...' + saveto)
-        with open('%s.pkl'%saveto, 'rb') as f:
+        print('reloading...' + saveto)
+        with open('%s.pkl' % saveto, 'rb') as f:
             model_options = pkl.load(f)
 
     # Load training and development sets
-    print ('loading dataset')
-    train, dev = load_dataset(data)
+    print('loading dataset')
+    titles, album_ims, artist, genre = load_dataset(data)
 
     # Create and save dictionary
-    if  os.path.exists('%s.dictionary.pkl'%saveto):
-        print ('loading dict from...' + saveto)
-        with open('%s.dictionary.pkl'%saveto, 'rb') as wdict:
+    if os.path.exists('%s.dictionary.pkl' % saveto):
+        print('loading dict from...' + saveto)
+        with open('%s.dictionary.pkl' % saveto, 'rb') as wdict:
             worddict = pkl.load(wdict)
         n_words = len(worddict)
         model_options['n_words'] = n_words
         print('Dictionary size: ' + str(n_words))
     else:
 
-        print ('Create dictionary')
-        worddict = build_dictionary(train[0]+dev[0])[0]
+        print('Create dictionary')
+        worddict = build_dictionary(titles + artist + genre)[0]
         n_words = len(worddict)
         model_options['n_words'] = n_words
-        print ('Dictionary size: ' + str(n_words))
-        with open('%s.dictionary.pkl'%saveto, 'wb') as f:
+        print('Dictionary size: ' + str(n_words))
+        with open('%s.dictionary.pkl' % saveto, 'wb') as f:
             pkl.dump(worddict, f)
-
 
     # Inverse dictionary
     word_idict = dict()
@@ -94,24 +92,24 @@ def trainer(data='f30k',
     model_options['word_idict'] = word_idict
 
     # Each sentence in the minibatch have same length (for encoder)
-    train_iter = homogeneous_data.HomogeneousData([train[0], train[1]], batch_size=batch_size, maxlen=maxlen_w)
+    train_iter = homogeneous_data.HomogeneousData([titles, album_ims, artist, genre], batch_size=batch_size,
+                                                  maxlen=maxlen_w)
 
-    img_sen_model = ImgSenRanking(model_options)
-    #todo code to load saved model dict
+    img_sen_model = Img_Sen_Artist_Ranking(model_options)
+    # todo code to load saved model dict
     if os.path.exists('%s_model_%s.pkl' % (saveto, encoder)):
         print('Loading model...')
-        #pkl.dump(model_options, open('%s_params_%s.pkl' % (saveto, encoder), 'wb'))
+        # pkl.dump(model_options, open('%s_params_%s.pkl' % (saveto, encoder), 'wb'))
         img_sen_model.load_state_dict(torch.load('%s_model_%s.pkl' % (saveto, encoder)))
         print('Done')
     img_sen_model = img_sen_model.cuda()
 
-    loss_fn = PairwiseRankingLoss(margin=margin)
-    loss_fn = loss_fn.cuda()
+    loss_fn = PairwiseRankingLoss(margin=margin).cuda()
 
     params = filter(lambda p: p.requires_grad, img_sen_model.parameters())
     optimizer = torch.optim.Adam(params, lr=lrate)
-    scheduler = ReduceLROnPlateau(optimizer, factor= 0.1, patience=100, mode='min',
-                                  verbose=True, threshold= 1e-8)
+    scheduler = ReduceLROnPlateau(optimizer, factor=0.1, patience=100, mode='min',
+                                  verbose=True, threshold=1e-8)
 
     uidx = 0
     curr = 0.0
@@ -124,81 +122,96 @@ def trainer(data='f30k',
 
     for eidx in range(max_epochs):
 
-        print ('Epoch ', eidx)
+        print('Epoch ', eidx)
 
-        for x, im in train_iter:
+        for x, im, artist, genre in train_iter:
             n_samples += len(x)
             uidx += 1
 
-            x, im = homogeneous_data.prepare_data(x, im, worddict, maxlen=maxlen_w, n_words=n_words)
+            x, im, artist, genre = homogeneous_data.prepare_data(x, im, artist, genre, worddict, maxlen=maxlen_w,
+                                                                 n_words=n_words)
 
             if x is None:
-                print ('Minibatch with zero sample under length ', maxlen_w)
+                print('Minibatch with zero sample under length ', maxlen_w)
                 uidx -= 1
                 continue
 
             x = Variable(torch.from_numpy(x).cuda())
             im = Variable(torch.from_numpy(im).cuda())
+            artist = Variable(torch.from_numpy(artist).cuda())
+            genre = Variable(torch.from_numpy(genre).cuda())
             # Update
-            x, im = img_sen_model(x, im)
-            cost = loss_fn(im, x)
+            x, im, artist, genre = img_sen_model(x, im, artist, genre)
+            cost = loss_fn(im, x, artist, genre)
             optimizer.zero_grad()
             cost.backward()
             torch.nn.utils.clip_grad_norm_(params, grad_clip)
 
-            #scheduler.step(cost.data.item())
+            # scheduler.step(cost.data.item())
             optimizer.step()
 
             if numpy.mod(uidx, dispFreq) == 0:
-                print ('Epoch ', eidx, '\tUpdate@ ', uidx, '\tCost ', cost.data.item())
+                print('Epoch ', eidx, '\tUpdate@ ', uidx, '\tCost ', cost.data.item())
 
             if numpy.mod(uidx, validFreq) == 0:
 
-                print ('Computing results...')
+                print('Computing results...')
                 curr_model = {}
                 curr_model['options'] = model_options
                 curr_model['worddict'] = worddict
                 curr_model['word_idict'] = word_idict
                 curr_model['img_sen_model'] = img_sen_model
 
-                ls, lim = encode_sentences(curr_model, dev[0]), encode_images(curr_model, dev[1])
+                ls, lim, lgen, lart = encode_sentences(curr_model, titles), encode_images(curr_model, album_ims), \
+                                      encode_sentences(curr_model, genre), encode_sentences(curr_model, artist)
 
                 r_time = time.time()
                 (r1, r5, r10, medr) = i2t(lim, ls)
-                print ("Image to text: %.1f, %.1f, %.1f, %.1f" % (r1, r5, r10, medr))
-                (r1i, r5i, r10i, medri) = t2i(lim, ls)
-                print ("Text to image: %.1f, %.1f, %.1f, %.1f" % (r1i, r5i, r10i, medri))
+                print("Image to text: %.1f, %.1f, %.1f, %.1f" % (r1, r5, r10, medr))
 
-                print ("Cal Recall@K using %ss" %(time.time()-r_time))
+                (r1g, r5g, r10g, medrg) = i2t(lim, lgen)
+                print("Image to genre: %.1f, %.1f, %.1f, %.1f" % (r1g, r5g, r10g, medrg))
+
+                (r1a, r5a, r10a, medra) = i2t(lim, lart)
+                print("Image to Artist: %.1f, %.1f, %.1f, %.1f" % (r1a, r5a, r10a, medra))
+
+                (r1s, r5s, r10s, medrs) = t2i(lim, ls)
+                print("Text to image: %.1f, %.1f, %.1f, %.1f" % (r1s, r5s, r10s, medrs))
+
+                print("Cal Recall@K using %ss" % (time.time() - r_time))
 
                 curr_step = uidx / validFreq
 
-                currscore = r1 + r5 + r10 + r1i + r5i + r10i
+                currscore = r1 + r5 + r10 + r1s + r5s + r10s + r1a + r5a + r10a + r1g + r5g + r10g
                 if currscore > curr:
                     curr = currscore
                     best_r1, best_r5, best_r10, best_medr = r1, r5, r10, medr
-                    best_r1i, best_r5i, best_r10i, best_medri = r1i, r5i, r10i, medri
+                    best_r1a, best_r5a, best_r10a, best_medra = r1, r5, r10, medra
+                    best_r1g, best_r5g, best_r10g, best_medrg = r1, r5, r10, medrg
+                    best_r1s, best_r5s, best_r10s, best_medrs = r1s, r5s, r10s, medrs
                     best_step = curr_step
 
                     # Save model
-                    print ('Saving model...')
-                    pkl.dump(model_options, open('%s_params_%s.pkl'%(saveto, encoder), 'wb'))
-                    torch.save(img_sen_model.state_dict(), '%s_model_%s.pkl'%(saveto, encoder))
-                    print ('Done')
+                    print('Saving model...')
+                    pkl.dump(model_options, open('%s_params_%s.pkl' % (saveto, encoder), 'wb'))
+                    torch.save(img_sen_model.state_dict(), '%s_model_%s.pkl' % (saveto, encoder))
+                    print('Done')
 
                 if curr_step - best_step > early_stop:
-                    print ('down lr ...')
-                    print ("Image to text: %.1f, %.1f, %.1f, %.1f" % (best_r1, best_r5, best_r10, best_medr))
-                    print ("Text to image: %.1f, %.1f, %.1f, %.1f" % (best_r1i, best_r5i, best_r10i, best_medri))
-                    return  0
+                    print('down lr ...')
+                    print("Image to text: %.1f, %.1f, %.1f, %.1f" % (best_r1, best_r5, best_r10, best_medr))
+                    print("Image to genre: %.1f, %.1f, %.1f, %.1f" % (best_r1g, best_r5g, best_r10g, best_medrg))
+                    print("Image to artist: %.1f, %.1f, %.1f, %.1f" % (best_r1a, best_r5a, best_r10a, best_medra))
+                    print("Text to image: %.1f, %.1f, %.1f, %.1f" % (best_r1s, best_r5s, best_r10s, best_medrs))
+                    return 0
                     '''lrate = lrate * (0.01 ** (eidx // 10))
                     print('lr=', lrate)
                     for param_group in optimizer.param_groups:
                         param_group['lr'] = lrate'''
-                #make lr scheduling
+                # make lr scheduling
 
+        print('Seen %d samples' % n_samples)
 
-        print ('Seen %d samples'%n_samples)
 
 if __name__ == '__main__':
     pass

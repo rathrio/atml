@@ -25,7 +25,7 @@ def encode_sentences(model, X, verbose=False, batch_size=128):
         d[w] = 1
 
     # Get features. This encodes by length, in order to avoid wasting computation
-    for k in ds.keys():
+    for k in ds.keys(): # indices of captions of a particular length
         if verbose:
             print (k)
         numbatches = len(ds[k]) // batch_size + 1
@@ -41,13 +41,14 @@ def encode_sentences(model, X, verbose=False, batch_size=128):
                 x[:k,idx] = s
 
             x = Variable(torch.from_numpy(x).cuda())
-            ff = model['img_sen_model'].forward_sens(x)
+            ff = model['img_sen_model'].forward_sens(x) #batch, l2norm
 
             for ind, c in enumerate(caps):
                 features[c] = ff[ind].data.cpu().numpy()
 
     features = Variable(torch.from_numpy(features).cuda())
     return features
+
 
 
 

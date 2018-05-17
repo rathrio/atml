@@ -5,35 +5,22 @@ import numpy
 
 
 
-def load_dataset(name='f8k', load_test=False):
+def load_dataset(name='f8k'):
     """
-    Load captions and image features
+    Load captions and image features, artist, genre
     """
     loc =  name + '/'
+    # titles
+    titles,genre,artist = [],[],[]
+    with open(loc+name+'all_data.txt', 'rb') as f: #need loc to file here
+        for line in f:
+            #get the titles, genre and artist
+            titles.append(line.strip())
 
-    if load_test:
-        # Captions
-        test_caps = []
-        with open(loc+name+'_test_caps.txt', 'rb') as f:
-            for line in f:
-                test_caps.append(line.strip())
-        # Image features
-        test_ims = numpy.load(loc+name+'_test_ims.npy')
-        return (test_caps, test_ims)
-    else:
-        # Captions
-        train_caps, dev_caps = [], []
-        with open(loc+name+'_train_caps.txt', 'rb') as f:
-            for line in f:
-                train_caps.append(line.strip())
 
-        with open(loc+name+'_dev_caps.txt', 'rb') as f:
-            for line in f:
-                dev_caps.append(line.strip())
 
-        # Image features
-        train_ims = numpy.load(loc+name+'_train_ims.npy')
+    # Image features
+    #train_ims = numpy.load(loc+name+'_train_ims.npy')
+    album_ims = numpy.load('music_alb.npy')
 
-        dev_ims = numpy.load(loc+name+'_dev_ims.npy')
-
-        return (train_caps, train_ims), (dev_caps, dev_ims)
+    return (titles, album_ims,artist, genre)
