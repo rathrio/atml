@@ -25,7 +25,7 @@ metadata = Metadata('./data/metadata.csv')
 
 input_size = 4096
 hidden_size = 1000
-genre_count = 15
+genre_count = metadata.genre_count
 net = GenreClassifier(input_size, hidden_size, genre_count)
 learning_rate = 0.0001
 criterion = nn.CrossEntropyLoss()
