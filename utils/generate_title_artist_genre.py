@@ -14,6 +14,8 @@ with open("data/metadata.csv") as csvfile:
         title = row[1]
         artist = row[2]
         genre = row[5].split("|")[0]
+
+
         print(title)
         print(artist)
         print(genre)
