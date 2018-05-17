@@ -12,6 +12,7 @@ from tensorboardX import SummaryWriter
 from torch.autograd import Variable
 from torch.nn.parallel import data_parallel
 from torch.nn.utils import clip_grad_norm_
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torchtextutils import Vocabulary
 from torchtextutils import BatchPreprocessor
 from torchtextutils import DirectoryReader
@@ -49,7 +50,7 @@ def parse_args():
     parser.add("--visualizer", type=str, default=None,
                choices=["visdom", "tensorboard"])
     parser.add("--ckpt-name", type=str, default="model-e{epoch}-s{step}-{loss}")
-    parser.add("-v", "--verbose", action="store_true", default=False)
+    parser.add("-v", "--verbose", action="store_true", default=True)
 
     group = parser.add_group("Word Embedding Options")
     group.add("--wordembed-type", type=str, default="none",
@@ -329,8 +330,7 @@ class Trainer(object):
         ys_lens = ys_lens[:, :previews]
 
         ys_i, ys_t = ys_i.transpose(1, 0), ys_t.transpose(1, 0)
-        dec_logits, ys_lens = dec_logits.transpose(1, 0), ys_lens.transpose(1,
-                                                                            0)
+        dec_logits, ys_lens = dec_logits.transpose(1, 0), ys_lens.transpose(1,0)
 
         x, x_lens = x.data.tolist(), x_lens.data.tolist()
         ys_i, ys_t = ys_i.data.tolist(), ys_t.data.tolist()
@@ -409,10 +409,16 @@ class Trainer(object):
         self.logger.save(self.save_dir)
 
     def train(self):
+        lrate = 1e-3
         optimizer = O.Adam([p for p in self.model.parameters()
-                            if p.requires_grad],  amsgrad=True)
+                            if p.requires_grad],  lr= lrate, amsgrad=True)
+        scheduler = ReduceLROnPlateau(optimizer, factor=0.9, patience=10000, mode='min',
+                                      verbose=True, threshold=1e-8)
         step = 0
         t = tqdm.tqdm()
+        curr = 0.00
+        best_lb, best_ls = 0.0, 0.0
+        best_step = 0
 
         for epoch in range(self.n_epochs):
             for data in self.data_generator:
@@ -427,11 +433,29 @@ class Trainer(object):
 
                     loss_b.backward()
                     clip_grad_norm_(self.model.parameters(), 10)
+                    scheduler.step(loss_b.data.item())
                     optimizer.step()
 
                 loss_val = loss_s.data.item()
 
-                if step % self.save_period == 0:
+                #add optimun jump if no best loss is found after n_iterations
+                curr_step = step / self.val_period
+                currscore = loss_b.data.item() + loss_val
+                if currscore > curr:
+                    curr = currscore
+                    best_lb, best_ls = loss_b.data.item(), loss_s.data.item()
+                    best_step = curr_step
+
+                if curr_step - best_step > 1000:
+                    print ('moving around space lr ...')
+                    lrate = lrate * 0.01
+                    print('lr=', lrate)
+                    for param_group in optimizer.param_groups:
+                        param_group['lr'] = lrate
+
+                    print("Best vals for now: %.1f, %.1f, " % (best_lb, best_ls))
+
+                if loss_val <= 4.9:
                     filename = self.ckpt_format.format(
                         epoch="{:02d}".format(epoch),
                         step="{:07d}".format(step),
@@ -537,7 +561,11 @@ class TensorboardTrainLogger(TrainLogger):
             self.writers[name].add_scalar(prefix, value, self.next())
 
     def add_text(self, name, text):
-        pass
+        if name not in self.writers:
+            dir = os.path.join(self.log_dir, name)
+            self.writers[name] = SummaryWriter(dir)
+        self.writers[name].add_text(name, text)
+
 
     def save(self, save_dir):
         pass
@@ -662,6 +690,7 @@ def main():
     elif args.visualizer == "tensorboard":
         from tensorboardX import SummaryWriter
         logger = TensorboardTrainLogger(save_dir)
+
     elif args.visualizer == "visdom":
         from visdom_pooled import Visdom
         viz_pool = mp.ThreadPool(1, initializer=init_viz, initargs=(tuple(), dict(
