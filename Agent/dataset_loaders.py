@@ -40,7 +40,7 @@ class MusicDataset(Dataset):
 
         row = self.albums[index]
         self.artist_name = row[2]
-        genre = row[5].split("|")
+        genre = row[5].split("|")[0]
 
         return self.vggfeatures[index], self.artist_name, genre
 
