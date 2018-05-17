@@ -148,6 +148,7 @@ def trainer(data='f30k',
             #make validation on inout before trainer see it
             if numpy.mod(uidx, validFreq) == 0:
                 with torch.no_grad():
+                    logging.info('Epoch ', eidx, '\tUpdate@ ', uidx, '\tCost ', cost.data.item())
                     (r1, r5, r10, medr) = i2t(im, s)
                     logging.info("Image to text: %.1f, %.1f, %.1f, %.1f" % (r1, r5, r10, medr))
 
@@ -190,9 +191,6 @@ def trainer(data='f30k',
 
             # scheduler.step(cost.data.item())
             optimizer.step()
-
-            if numpy.mod(uidx, dispFreq) == 0:
-                logging.info('Epoch ', eidx, '\tUpdate@ ', uidx, '\tCost ', cost.data.item())
 
 
         logging.info('Seen %d samples' % n_samples)
