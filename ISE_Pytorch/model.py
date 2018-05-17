@@ -41,6 +41,10 @@ class Img_Sen_Artist_Ranking(torch.nn.Module):
         x_cat = x_emb.squeeze(0)
         return l2norm(x_cat)
 
+    def forward_imgs(self, im):
+        im = self.linear(im)
+        return l2norm(im)
+
 
 
 

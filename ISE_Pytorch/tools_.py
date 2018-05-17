@@ -14,7 +14,9 @@ def encode_sentences(model, X, verbose=False, batch_size=128):
 
     # length dictionary
     ds = defaultdict(list)
+
     captions = [s.split() for s in X]
+
     for i,s in enumerate(captions):
         ds[len(s)].append(i)
 

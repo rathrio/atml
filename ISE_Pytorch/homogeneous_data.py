@@ -1,5 +1,6 @@
 import numpy
 import copy
+import IPython
 
 
 class HomogeneousData():
@@ -16,7 +17,7 @@ class HomogeneousData():
         self.caps = self.data[0]
         self.feats = self.data[1]  # todo will be images and have to put model to get features here
 
-        assert self.caps.shape == self.data[2].shape
+        assert len(self.caps) == len(self.data[2])
 
         # find the unique lengths
         self.lengths = [len(cc.split()) for cc in self.caps]
@@ -83,14 +84,18 @@ def prepare_data(caps, img_features, artist, genre, worddict, maxlen=None, n_wor
     """
     seqs, seqs1, seqs2 = [], [], []
     feat_list = []
-    for i, cc, art, gen in enumerate(zip(caps, artist, genre)):  # feed genre and styles as list
+    for i, (cc, art, gen) in enumerate(zip(caps, artist, genre)):  # feed genre and styles as list
         seqs.append([worddict[w] if worddict[w] < n_words else 1 for w in
                      cc.split()])  # list of list of indices of words for sentences
         seqs1.append([worddict[a] if worddict[a] < n_words else 1 for a in art.split()])
         seqs2.append([worddict[g] if worddict[g] < n_words else 1 for g in gen.split()])
         feat_list.append(img_features[i])
 
-    lengths, lena, leng = [(len(s), len(s1), len(s2)) for s, s1, s2 in zip(seqs, seqs1, seqs2)]
+    all_lengths = [(len(s), len(s1), len(s2)) for (s, s1, s2) in zip(seqs, seqs1, seqs2)]
+
+    lengths = list(map((lambda t: t[0]), all_lengths))
+    lena = list(map((lambda t: t[1]), all_lengths))
+    leng = list(map((lambda t: t[2]), all_lengths))
 
     y = numpy.asarray(feat_list, dtype=numpy.float32)
 
@@ -102,12 +107,12 @@ def prepare_data(caps, img_features, artist, genre, worddict, maxlen=None, n_wor
         x[:lengths[idx],
         idx] = s  # put the list of word indices of sentence in array(x) max_number-of-words, samples, 0 paddes
 
-    aa = numpy.zeros((numpy.max(len(lena)) + 1, len(seqs1))).astype('int64')
+    aa = numpy.zeros((numpy.max(lena) + 1, len(seqs1))).astype('int64')
     for idx, s in enumerate(seqs1):
         aa[:lena[idx], idx] = s
 
-    gg = numpy.zeros((numpy.max(len(leng)) + 1, len(seqs2))).astype('int64')
-    for idx, s in enumerate(seqs1):
+    gg = numpy.zeros((numpy.max(leng) + 1, len(seqs2))).astype('int64')
+    for idx, s in enumerate(seqs2):
         gg[:leng[idx], idx] = s
 
     return x, y, aa, gg  # (max_len_sen, nsamples) , feature_list, (max_len_artist,n) (max_len_genre,n)
