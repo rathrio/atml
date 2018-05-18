@@ -433,12 +433,12 @@ class Trainer(object):
 
                     loss_b.backward()
                     clip_grad_norm_(self.model.parameters(), 10)
-                    scheduler.step(loss_b.data.item())
+                    #scheduler.step(loss_b.data.item())
                     optimizer.step()
 
                 loss_val = loss_s.data.item()
 
-                #add optimun jump if no best loss is found after n_iterations
+                '''#add optimun jump if no best loss is found after n_iterations
                 curr_step = step / self.val_period
                 currscore = loss_b.data.item() + loss_val
                 if currscore > curr:
@@ -448,12 +448,12 @@ class Trainer(object):
 
                 if curr_step - best_step > 40:
                     print ('moving around space lr ...')
-                    lrate = lrate * 0.01
+                    lrate = lrate * (0.01 ** (epoch // 10))
                     print('lr=', lrate)
                     for param_group in optimizer.param_groups:
                         param_group['lr'] = lrate
 
-                    print("Best vals for now: %.1f, %.1f, " % (best_lb, best_ls))
+                    print("Best vals for now: %.1f, %.1f, " % (best_lb, best_ls))'''
 
                 if loss_val <= 4.9:
                     filename = self.ckpt_format.format(
