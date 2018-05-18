@@ -22,44 +22,52 @@ class GenreClassifier(nn.Module):
     def forward(self, features):
         out = self.fc1(features)
         out = self.fc2(out)
-        return F.softmax(out, dim=-1)
+        return F.softmax(out)
 
 
-metadata = Metadata(metadata_path)
-albums = metadata.albums
-all_features = np.load(features_path)
-print(f'Loaded {len(all_features)} features')
+def train():
+    metadata = Metadata(metadata_path)
+    albums = metadata.albums
+    all_features = np.load(features_path)
+    print(f'Loaded {len(all_features)} features')
 
-assert len(albums) == len(all_features)
+    assert len(albums) == len(all_features)
 
-input_size = 4096
-hidden_size = 512
-genre_count = metadata.genre_count
-net = GenreClassifier(input_size, hidden_size, genre_count)
+    input_size = 4096
+    hidden_size = 512
+    genre_count = metadata.genre_count
+    net = GenreClassifier(input_size, hidden_size, genre_count)
 
-learning_rate = 1e-3
-criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
-batch_size = 1000
+    learning_rate = 1e-3
+    # criterion = nn.CrossEntropyLoss()
+    criterion = nn.MSELoss()
+    optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
+    batch_size = 100
 
-for epoch in range(2):
+    for epoch in range(2):
 
-    running_loss = 0.0
-    for i, album in enumerate(albums, 0):
-        features = Variable(torch.from_numpy(all_features[i]))
-        genre = Variable(metadata.genre_tensor(album.genre))
+        running_loss = 0.0
+        for i, album in enumerate(albums, 0):
+            features = torch.from_numpy(all_features[i])
+            features = Variable(features)
+            genre = metadata.genre_tensor(album.genre)
+            genre = Variable(genre)
 
-        optimizer.zero_grad()
+            optimizer.zero_grad()
 
-        out = net(features)
-        loss = criterion(out, genre)
-        loss.backward()
-        optimizer.step()
+            out = net(features)
+            loss = criterion(out, genre)
+            loss.backward()
+            optimizer.step()
 
-        running_loss += loss.item()
-        if i % batch_size == (batch_size - 1):
-            print('[%d, %5d] loss: %.3f' %
-                  (epoch + 1, i + 1, running_loss / batch_size))
-            running_loss = 0.0
+            # running_loss += loss.item()
+            running_loss += loss.data[0]
+            if i % batch_size == (batch_size - 1):
+                print('[%d, %5d] loss: %.3f' %
+                      (epoch + 1, i + 1, running_loss / batch_size))
+                running_loss = 0.0
 
-print('Done!')
+    print('Done!')
+
+
+train()
