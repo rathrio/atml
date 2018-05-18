@@ -24,9 +24,7 @@ class GenreClassifier(nn.Module):
     def forward(self, features):
         out = self.fc1(features)
         out = self.fc2(out)
-        # return out
         return F.softmax(out, dim=1)
-        # return F.log_softmax(out)
 
 
 def train():
@@ -63,9 +61,6 @@ def train():
             if cuda_available:
                 genre = genre.cuda()
             genre = Variable(genre)
-
-            # genre = metadata.genre_tensor(album.genre)
-            # genre = Variable(genre)
 
             optimizer.zero_grad()
 
