@@ -389,11 +389,11 @@ class Trainer(object):
     def step_val(self, step, batch_data):
         with torch.no_grad():
             data, dec_logits, loss_b, loss_s = self.step(step, batch_data,
-                                                         title="Validation Loss")
+                                                         title="Validation_Loss")
             sents = self.val_sents(data, dec_logits)
             text = self.val_text(*sents)
 
-            self.logger.add_text("Validation Examples", text)
+            self.logger.add_text("Validation_Examples", text)
 
             return loss_b, loss_s
 

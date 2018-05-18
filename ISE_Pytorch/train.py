@@ -83,7 +83,7 @@ def trainer(data='f30k',
         worddict = build_dictionary(titles + artist + genre)[0]
         n_words = len(worddict)
         model_options['n_words'] = n_words
-        logging.info('Dictionary size: ' + str(n_words))
+        logging.info('Dictionary words: ' + str(n_words))
         with open('%s.dictionary.pkl' % saveto, 'wb') as f:
             pkl.dump(worddict, f)
 
@@ -114,7 +114,7 @@ def trainer(data='f30k',
 
     params = filter(lambda p: p.requires_grad, img_sen_model.parameters())
     optimizer = torch.optim.Adam(params, lr=lrate)
-    scheduler = ReduceLROnPlateau(optimizer, factor=0.1, patience=100, mode='min',
+    scheduler = ReduceLROnPlateau(optimizer, factor=0.1, patience=40, mode='min',
                                   verbose=True, threshold=1e-8)
 
     uidx = 0
@@ -148,8 +148,8 @@ def trainer(data='f30k',
             #make validation on inout before trainer see it
             if numpy.mod(uidx, validFreq) == 0:
                 with torch.no_grad():
-                    logging.info('Epoch ', eidx, '\tUpdate@ ', uidx, '\tCost ', cost.data.item())
-                    (r1, r5, r10, medr) = i2t(im, s)
+                    print('Epoch ', eidx, '\tUpdate@ ', uidx, '\tCost ', cost.data.item())
+                    (r1, r5, r10, medr) = i2t(im, x)
                     logging.info("Image to text: %.1f, %.1f, %.1f, %.1f" % (r1, r5, r10, medr))
 
                     (r1g, r5g, r10g, medrg) = i2t(im, genre)
@@ -162,7 +162,7 @@ def trainer(data='f30k',
 
                     curr_step = uidx / validFreq
 
-                    currscore = r1 + r5 + r10 + r1a + r5a + r10a + r1g + r5g + r10g
+                    currscore = r1 + r5 + r10 + r1a + r5a + r10a + r1g + r5g + r10g-medr-medrg-medra
                     if currscore > curr:
                         curr = currscore
                         best_r1, best_r5, best_r10, best_medr = r1, r5, r10, medr
@@ -176,23 +176,23 @@ def trainer(data='f30k',
                         logging.info('Done')
 
                     if curr_step - best_step > early_stop:
-                        logging.info('early stopping, jumping later ...')
+                        logging.info('early stopping, jumping now...')
                         logging.info("Image to text: %.1f, %.1f, %.1f, %.1f" % (best_r1, best_r5, best_r10, best_medr))
                         logging.info("Image to genre: %.1f, %.1f, %.1f, %.1f" % (best_r1g, best_r5g, best_r10g, best_medrg))
 
-                        return 0
-                        '''lrate = lrate * (0.01 ** (eidx // 10))                    
+                        #return 0
+                        lrate = 1e-4
                         for param_group in optimizer.param_groups:
-                            param_group['lr'] = lrate'''
+                            param_group['lr'] = lrate
             cost = loss_fn(im, x, artist, genre)
             optimizer.zero_grad()
             cost.backward()
             torch.nn.utils.clip_grad_norm_(params, grad_clip)
 
-            # scheduler.step(cost.data.item())
+            scheduler.step(cost.data.item())
             optimizer.step()
 
-
+        #scheduler.step(cost.data.item())
         logging.info('Seen %d samples' % n_samples)
 
 

@@ -21,11 +21,12 @@ def load_dataset(name='f8k'):
     artists = []
     genres = []
 
-    with open("/var/tmp/albums/data/metadata.csv") as csvfile:
+    with open(r"C:\Users\alvin\PycharmProjects\atml\data/metadata.csv", encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile, delimiter=';')
         next(reader, None)  # skip headers
 
-        for row in reader:
+        for i,row  in enumerate(reader):
+
             title = row[1]
             artist = row[2]
             genre = row[5].split("|")[0]
@@ -35,6 +36,6 @@ def load_dataset(name='f8k'):
 
             # Image features
             #train_ims = numpy.load(loc+name+'_train_ims.npy')
-    album_ims = numpy.load('/var/tmp/albums/music_alb.npy')
+    album_ims = numpy.load(r'C:\Users\alvin\PycharmProjects\pytorch-skipthoughts/music_alb.npy')
 
     return (titles, album_ims, artists, genres)

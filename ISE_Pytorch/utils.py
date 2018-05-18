@@ -40,4 +40,4 @@ def init_lstm(cell, gain=1):
         l = len(ih_b)
         ih_b[l // 4:l // 2].data.fill_(1.0)
         hh_b[l // 4:l // 2].data.fill_(1.0)
-print('LSTM ortho init Done')
+    print('LSTM ortho init Done')
