@@ -1,8 +1,11 @@
 import csv
 import torch
+from collections import namedtuple
 
 
 class Metadata:
+    Album = namedtuple("Album", ["id", "title", "artist", "artist_id", "songs", "genre"])
+
     genres = ["Electronic",
               "Rock",
               "Pop",
@@ -29,7 +32,16 @@ class Metadata:
             reader = csv.reader(csvfile, delimiter=';')
             next(reader, None)  # skip headers
             for row in reader:
-                self.albums.append(row)
+                self.albums.append(
+                    self.Album(
+                        id=row[0],
+                        title=row[1],
+                        artist=row[2],
+                        artist_id=row[3],
+                        songs=row[4].split("|"),
+                        genre=row[5].split("|")[0]
+                    )
+                )
 
         print(f'Loaded {len(self.albums)} albums')
 
@@ -43,4 +55,4 @@ class Metadata:
         return self.albums[index]
 
     def genre(self, index):
-        return self.album(index)[5].split("|")[0]
+        return self.album(index).genre
