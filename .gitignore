@@ -1,3 +1,5 @@
 __pycache__
-ISE_Pytorch/vse/
+ISE_Pytorch/vse/**
 data/music_alb.npy
+**/**/*.db
+**/**/*.zip

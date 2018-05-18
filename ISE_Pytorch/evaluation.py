@@ -4,23 +4,37 @@ from datasets import load_dataset
 from tools_ import encode_sentences, encode_images
 
 
-def evalrank(model, data):
+def evalrank(model ):
     """
-    Evaluate a trained model on either dev ortest
+    Evaluate a trained model on either dev or test
     """
 
     print('Loading dataset')
 
-    X0, X1, _, _ = load_dataset(data)
+    titles, album_ims, _, _ = load_dataset()
 
     print('Computing results...')
-    ls = encode_sentences(model, X0)
-    lim = encode_images(model, X1)
+    ls = encode_sentences(model, titles)
+    lim = encode_images(model, album_ims)
 
     (r1, r5, r10, medr) = i2t(lim, ls)
     print("Image to text: %.1f, %.1f, %.1f, %.1f" % (r1, r5, r10, medr))
     (r1i, r5i, r10i, medri) = t2i(lim, ls)
     print("Text to image: %.1f, %.1f, %.1f, %.1f" % (r1i, r5i, r10i, medri))
+
+def get_embedding(model, inputs):
+    """
+    Evaluate a trained model on  some input
+    """
+
+    artists, genres = inputs
+
+    print('embedding...')
+    art_emb = encode_sentences(model, artists)
+    gen_emb = encode_sentences(model, genres)
+
+    return art_emb, gen_emb
+
 
 
 def i2t(images, captions, npts=None):

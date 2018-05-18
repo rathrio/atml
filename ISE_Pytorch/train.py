@@ -196,5 +196,8 @@ def trainer(data='f30k',
         logging.info('Seen %d samples' % n_samples)
 
 
+
+
+
 if __name__ == '__main__':
     pass

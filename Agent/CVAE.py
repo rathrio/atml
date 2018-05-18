@@ -8,8 +8,8 @@ from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
-from .dataset_loaders import  MusicDataset, make_stratified_splits
-
+from .dataset_loaders import  MusicDataset, make_stratified_splits, PairwiseRankingLoss as latent_dist
+from ISE_Pytorch import  get_embedding
 # changed configuration to this instead of argparse for easier interaction
 CUDA = True
 SEED = 1
@@ -37,72 +37,59 @@ train_index, val_index = make_stratified_splits(music_dataset)
 train_loader = DataLoader(music_dataset, batch_size=BATCH_SIZE,sampler=SubsetRandomSampler(train_index), **kwargs)
 test_loader =  DataLoader(music_dataset, batch_size=BATCH_SIZE, sampler=SubsetRandomSampler(val_index), **kwargs)
 
-class VAE(nn.Module):
+class CVAE(nn.Module):
     def __init__(self):
-        super(VAE, self).__init__()
+        super(CVAE, self).__init__()
 
         # ENCODER
-        # 1000 input vector from ISE, 400 outputs
+        # 1000 input vector from ISE, 512 outputs
         self.fc1 = nn.Linear(1000, 512)
         self.fc11 = nn.Linear(512,256)
-        # rectified linear unit layer from 400 to 400
-        # max(0, x)
+
+
         self.relu = nn.ReLU()
         self.fc21 = nn.Linear(256, ZDIMS)  # mu layer
         self.fc22 = nn.Linear(256, ZDIMS)  # logvariance layer
         # this last layer bottlenecks through ZDIMS connections
 
-        # DECODER( put a conditional decoder here)
-        # from bottleneck to hidden 400
-        self.fc3 = nn.Linear(ZDIMS, 400)
-        # from hidden 400 to artist embedding space
-        self.fc4 = nn.Linear(400, 784)
+        # DECODER( conditional decoder here)
+        # from bottleneck to artist/genre dim
+        self.fc3 = nn.Linear(ZDIMS, 96)
+        self.fc4 = nn.Linear(96, 256)
+        self.fc5 = nn.Linear(256, 512)
+        self.fc31 = nn.Linear(ZDIMS, 96)
+        self.fc41 = nn.Linear(96, 256)
+        self.fc51 = nn.Linear(256, 512)
         self.sigmoid = nn.Sigmoid()
 
     def encode(self, x: Variable) -> (Variable, Variable):
-        """Input vector x -> fully connected 1 -> ReLU -> (fully connected
-        21, fully connected 22)
-
-        Parameters
-        ----------
-        x : [128, 784] matrix; 128 digits of 28x28 pixels each
-
+        """Input vector x -> reduce -> ReLU -> reduce, reduce)
+        1000 ->512 ->256->40
         Returns
         -------
-
         (mu, logvar) : ZDIMS mean units one for each latent dimension, ZDIMS
             variance units one for each latent dimension
-
         """
-
-        # h1 is [128, 400]
-        h1 = self.relu(self.fc1(x))  # type: Variable
+        x= self.fc1(x)
+        h1 = self.relu(self.fc11(x))
         return self.fc21(h1), self.fc22(h1)
 
     def reparameterize(self, mu: Variable, logvar: Variable) -> Variable:
         """THE REPARAMETERIZATION IDEA:
 
-        For each training sample (we get 128 batched at a time)
+        For each training sample batch
 
         - take the current learned mu, stddev for each of the ZDIMS
           dimensions and draw a random sample from that distribution
         - the whole network is trained so that these randomly drawn
-          samples decode to output that looks like the input
+          samples decodes to  the input distribution
         - which will mean that the std, mu will be learned
           *distributions* that correctly encode the inputs
         - due to the additional KLD term (see loss_function() below)
           the distribution will tend to unit Gaussians
 
-        Parameters
-        ----------
         mu : [128, ZDIMS] mean matrix
         logvar : [128, ZDIMS] variance matrix
-
-        Returns
-        -------
-
-        During training random sample from the learned ZDIMS-dimensional
-        normal distribution; during inference its mean.
 
         """
 
@@ -110,53 +97,55 @@ class VAE(nn.Module):
             # multiply log variance with 0.5, then in-place exponent
             # yielding the standard deviation
             std = logvar.mul(0.5).exp_()  # type: Variable
-            # - std.data is the [128,ZDIMS] tensor that is wrapped by std
-            # - so eps is [128,ZDIMS] with all elements drawn from a mean 0
-            #   and stddev 1 normal distribution that is 128 samples
-            #   of random ZDIMS-float vectors
             eps = Variable(std.data.new(std.size()).normal_())
-            # - sample from a normal distribution with standard
-            #   deviation = std and mean = mu by multiplying mean 0
-            #   stddev 1 sample with desired std and mu, see
-            #   https://stats.stackexchange.com/a/16338
-            # - so we have 128 sets (the batch) of random ZDIMS-float
-            #   vectors sampled from normal distribution with learned
-            #   std and mu for the current input
+
             return eps.mul(std).add_(mu)
 
         else:
-            # During inference, we simply spit out the mean of the
-            # learned distribution for the current input.  We could
-            # use a random sample from the distribution, but mu of
-            # course has the highest probability.
+
             return mu
 
-    def decode_artist(self, z: Variable) -> Variable:
-        h3 = self.relu(self.fc3(z))
-        return self.sigmoid(self.fc4(h3))
+    def decode_genre(self, z: Variable) -> Variable: #return some dim vector
+        z = self.fc3(z)
+        z = self.fc4(z)
+        z = self.relu(self.fc5(z))
+        return self.sigmoid(z)
 
-    def forward(self, x: Variable) -> (Variable, Variable, Variable):
-        mu, logvar = self.encode(x.view(-1, 784))
+    def decode_artist(self, z: Variable) -> Variable: #return some dim vector
+        z= self.fc31(z)
+        z= self.fc41(z)
+        z= self.relu(self.fc51(z))
+        return self.sigmoid(z)
+
+    def forward(self, x: Variable) -> (Variable, Variable, Variable,Variable):
+        mu, logvar = self.encode(x.view(-1, 1000))
         z = self.reparameterize(mu, logvar)
-        return self.decode(z), mu, logvar
+        return self.decode_artist(z), self.decode_genre(z), mu, logvar
 
 
-model = VAE().cuda()
+model = CVAE().cuda()
 
 
-def loss_function(recon_x, x, mu, logvar) -> Variable:
+def loss_function(generated_artist, generated_genre, mu, logvar) -> Variable:
+    #find the index of the vggfeatures sent to system, get artist and genre
+    #pass through pretrained sytem and get embedding
+    #do forward pass of ISE here for embedding
+    #todo here
+    vf,artists, genres = train_loader[i]
+    assert vf == vggfeatures_sent
+
+    genre_emb= get_embedding(genres)
+    artist_emb= get_embedding(artists)
+
+
     # how well do input x and output recon_x agree?
-    BCE = F.binary_cross_entropy(recon_x, x.view(-1, 784)) # make loss for decorder here
+    BCE = latent_dist(generated_artist, generated_genre,  genre_emb, artist_emb) # make loss for decoders here
 
     # KLD is Kullback–Leibler divergence -- how much does one learned
     # distribution deviate from another, in this specific case the
     # learned distribution from the unit Gaussian
-
-    # see Appendix B from VAE paper:
-    # Kingma and Welling. Auto-Encoding Variational Bayes. ICLR, 2014
-    # https://arxiv.org/abs/1312.6114
     # - D_{KL} = 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
-    # note the negative D_{KL} in appendix B of the paper
+
     KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
     # Normalise by same number of elements as in reconstruction
     KLD /= BATCH_SIZE * 784
@@ -179,19 +168,19 @@ def train(epoch):
         optimizer.zero_grad()
 
         # push whole batch of data through VAE.forward() to get recon_loss
-        recon_batch, mu, logvar = model(data)
+        decoded_artist, decoded_genre,  mu, logvar = model(data)
         # calculate scalar loss
-        loss = loss_function(recon_batch, data, mu, logvar)
+        loss = loss_function(decoded_artist, decoded_genre, mu, logvar)
         # calculate the gradient of the loss w.r.t. the graph leaves
         # i.e. input variables -- by the power of pytorch!
         loss.backward()
-        train_loss += loss.data[0]
+        train_loss += loss.data.item()
         optimizer.step()
         if batch_idx % LOG_INTERVAL == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader),
-                loss.data[0] / len(data)))
+                loss.data.item() / len(data)))
 
     print('====> Epoch: {} Average loss: {:.4f}'.format(
           epoch, train_loss / len(train_loader.dataset)))
@@ -227,7 +216,6 @@ def validation(epoch):
 
 for epoch in range(1, EPOCHS + 1):
     train(epoch)
-    test(epoch)
 
     # 64 sets of random ZDIMS-float vectors, i.e. 64 locations / MNIST
     # digits in latent space

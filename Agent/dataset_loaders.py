@@ -1,4 +1,10 @@
+import logging
+import os
+import pickle
+
+import torch
 from sklearn.model_selection import StratifiedShuffleSplit
+from torch.autograd import Variable
 from torch.utils.data import Dataset
 import numpy as np
 import csv
@@ -61,4 +67,38 @@ def make_stratified_splits(dataset):
 # dataset.__getitem__(12347)
 
 
+
+class PairwiseRankingLoss(torch.nn.Module):
+
+    def __init__(self, margin=1.0):
+        super(PairwiseRankingLoss, self).__init__()
+        self.margin = margin
+
+    def forward(self, artist,genre, target_gen, target_art):#
+        margin = 0.2
+        # compute vector-vector score matrix of generated and expected
+        #between artist and genres from vgg
+        #s = batch,l2norms_vab_size
+
+        score_artist = torch.mm(artist, target_art.transpose(1, 0))
+        score_genre = torch.mm(genre, genre.transpose(1, 0))
+
+
+        diagonala,diagonalg  = score_artist.diag(), score_genre.diag()
+
+        # compare every diagonal score to scores in its column (i.e, all contrastive generated vectors for vectors)
+        cost_artist = torch.max(Variable(torch.zeros(score_artist.size()[0], score_artist.size()[1]).cuda()),
+                                (margin-diagonala).expand_as(score_artist)+score_artist)
+
+        cost_genre = torch.max(Variable(torch.zeros(score_genre.size()[0], score_genre.size()[1]).cuda()),
+                                (margin - diagonalg).expand_as(score_genre) + score_genre)
+
+
+        for i in range(score_artist.size()[0]):
+            cost_artist[i, i] = 0
+            cost_genre[i, i] = 0
+
+        return cost_artist.sum() + cost_genre.sum()
+    #return the cost for the distances between the generated features , and the features of some layer of same size for
+    #used for classification
 
