@@ -36,7 +36,7 @@ def train():
     assert len(albums) == len(all_features)
 
     input_size = 4096
-    hidden_size = 512
+    hidden_size = 1000
     genre_count = metadata.genre_count
     net = GenreClassifier(input_size, hidden_size, genre_count)
     if cuda_available:
@@ -48,7 +48,7 @@ def train():
     batch_size = 1000
 
     # try:
-    for epoch in range(3):
+    for epoch in range(10):
 
         running_loss = 0.0
         for i, album in enumerate(albums, 0):
@@ -78,6 +78,7 @@ def train():
     # except:
     #     torch.save(net.state_dict(), f'{save_model_path}/genre_model')
 
+    torch.save(net.state_dict(), f'{save_model_path}/genre_classifier.pkl')
     print('Done!')
 
 
