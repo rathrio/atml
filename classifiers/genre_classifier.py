@@ -14,6 +14,7 @@ save_model_path = "./data/models"
 
 cuda_available = torch.cuda.is_available()
 
+
 class GenreClassifier(nn.Module):
     def __init__(self, input_size, hidden_size, genre_count):
         super(GenreClassifier, self).__init__()
@@ -73,13 +74,29 @@ def train():
             running_loss += loss.data[0]
             if i % batch_size == (batch_size - 1):
                 print('[%d, %5d] loss: %.3f' %
-                    (epoch + 1, i + 1, running_loss / batch_size))
+                      (epoch + 1, i + 1, running_loss / batch_size))
                 running_loss = 0.0
     # except:
     #     torch.save(net.state_dict(), f'{save_model_path}/genre_model')
 
     torch.save(net.state_dict(), f'{save_model_path}/genre_classifier.pkl')
     print('Done!')
+
+
+# metadata = Metadata(metadata_path)
+# albums = metadata.albums
+# all_features = np.load(features_path)
+# print(f'Loaded {len(all_features)} features')
+
+# assert len(albums) == len(all_features)
+
+# input_size = 4096
+# hidden_size = 1000
+# genre_count = metadata.genre_count
+# net = GenreClassifier(input_size, hidden_size, genre_count)
+# net.load_state_dict(torch.load('./classifiers/genre_classifier.pkl'))
+
+# IPython.embed()
 
 
 train()
