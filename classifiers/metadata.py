@@ -45,14 +45,17 @@ class Metadata:
 
         print(f'Loaded {len(self.albums)} albums')
 
-    def genre_tensor(self, genre):
-        index = self.genres.index(genre)
-        t = torch.Tensor([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-        t[index] = 1
-        return t
+    def genre_index(self, genre):
+        return self.genres.index(genre)
+
+    def genre(self, index):
+        return self.genres[index]
+
+    # def genre_tensor(self, genre):
+    #     index = self.genres.index(genre)
+    #     t = torch.Tensor([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    #     t[index] = 1
+    #     return t
 
     def album(self, index):
         return self.albums[index]
-
-    def genre(self, index):
-        return self.album(index).genre
