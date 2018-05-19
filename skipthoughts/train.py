@@ -399,7 +399,7 @@ class Trainer(object):
 
     def step_train(self, step, batch_data):
         data, dec_logits, loss_b, loss_s = self.step(step, batch_data,
-                                                     title="Training Loss")
+                                                     title="Training_Loss")
 
         return loss_b, loss_s
 

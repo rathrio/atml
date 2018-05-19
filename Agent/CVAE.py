@@ -2,7 +2,7 @@ import logging
 import os
 import pickle
 from multiprocessing import freeze_support
-
+import numpy as np
 import torch
 import torch.utils.data
 from torch import nn, optim
@@ -40,8 +40,21 @@ kwargs = {'num_workers': 0, 'pin_memory': True} if CUDA else {}
 # load dataset
 music_dataset = MusicDataset(r"C:\Users\alvin\PycharmProjects\atml\data/metadata.csv", r'C:\Users\alvin\PycharmProjects\pytorch-skipthoughts/music_alb.npy' ) #if args are needed
 #train_index, val_index = make_stratified_splits(music_dataset)
-train_loader = DataLoader(music_dataset, batch_size=BATCH_SIZE, shuffle=True, **kwargs)
-test_loader =  DataLoader(music_dataset, batch_size=256, shuffle=True, **kwargs)
+#make splits
+
+num_train = len(music_dataset)
+indices = list(range(num_train))
+split = int(np.floor(0.1 * num_train))
+
+np.random.seed(12354)
+np.random.shuffle(indices)
+
+train_idx, valid_idx = indices[split:], indices[:split]
+train_sampler = SubsetRandomSampler(train_idx)
+valid_sampler = SubsetRandomSampler(valid_idx)
+
+train_loader = DataLoader(music_dataset, batch_size=BATCH_SIZE, sampler=train_sampler, **kwargs)
+test_loader =  DataLoader(music_dataset, batch_size=128, sampler=valid_sampler, **kwargs)
 
 class CVAE(nn.Module):
     def __init__(self, save_loc):
@@ -153,6 +166,9 @@ class CVAE(nn.Module):
 
 
 model = CVAE(r'C:\Users\alvin\PycharmProjects\atml\ISE_Pytorch\vse').cuda()
+if os.path.isfile('tesnsor.pt'):
+    print('loading saved agent mode')
+    model.load_state_dict(torch.load('tesnsor.pt'))
 
 def loss_function(genres, artists, dec_artist, dec_genre, mu, logvar) -> Variable:
 
@@ -180,6 +196,7 @@ def loss_function(genres, artists, dec_artist, dec_genre, mu, logvar) -> Variabl
 
 optimizer = optim.Adam([p for p in model.parameters()
                             if p.requires_grad], lr=1e-3)
+
 scheduler = ReduceLROnPlateau(optimizer, factor=0.1, patience=4, mode='min',
                                       verbose=True, threshold=1e-8)
 
@@ -216,7 +233,7 @@ def train(epoch):
 
     print('====> Epoch: {} Average loss: {:.4f}'.format(
           epoch, train_loss / len(train_loader.dataset)))
-    return train_loss
+    return train_loss / len(train_loader.dataset)
 
 
 def validation(epoch):
@@ -234,10 +251,12 @@ def validation(epoch):
 
             decoded_artist, decoded_genre, mu, logvar = model(vgg_feature)
             test_loss += loss_function(genre,artist,decoded_artist, decoded_genre, mu, logvar)
-            print('test_Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                epoch, i * len(vgg_feature), len(test_loader.dataset),
-                       100. * i / len(train_loader),
-                       test_loss.data.item() / len(vgg_feature)))
+            if i% 10 == 20:
+
+                print('test_Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                    epoch, i * len(vgg_feature), len(test_loader.dataset),
+                           100. * i / len(test_loader),
+                           test_loss.data.item() / len(vgg_feature)))
             #n = min(data[0].size(0), 8) #get first 8 pics
             # for the first 128 batch of the epoch, show the first 8 input digits
 
@@ -253,12 +272,12 @@ def validation(epoch):
 tmp= 1e20
 for epoch in range(1, EPOCHS + 1):
     train_loss = train(epoch)
-    #val_loss= validation(epoch)
-    if train_loss < tmp:
+    val_loss= validation(epoch)
+    if val_loss < tmp:
         print('saving model @', train_loss)
         torch.save(model.state_dict(), 'tesnsor.pt')
-        tnp=train_loss
-    scheduler.step(train_loss)
+        tmp=val_loss
+    scheduler.step(val_loss)
 
 
     '''#after training of agent call a random sample
