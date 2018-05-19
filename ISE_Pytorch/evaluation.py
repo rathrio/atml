@@ -1,7 +1,7 @@
 import numpy
 import torch
-from datasets import load_dataset
-from tools_ import encode_sentences, encode_images
+from ISE_Pytorch.datasets import load_dataset
+from ISE_Pytorch.tools_ import encode_sentences, embbed_sentences, encode_images
 
 
 def evalrank(model ):
@@ -22,18 +22,14 @@ def evalrank(model ):
     (r1i, r5i, r10i, medri) = t2i(lim, ls)
     print("Text to image: %.1f, %.1f, %.1f, %.1f" % (r1i, r5i, r10i, medri))
 
-def get_embedding(model, inputs):
+def get_embedding(model, input):
     """
     Evaluate a trained model on  some input
+    get input , chop them and then send to lstm
     """
+    art_emb = embbed_sentences(model, input)
 
-    artists, genres = inputs
-
-    print('embedding...')
-    art_emb = encode_sentences(model, artists)
-    gen_emb = encode_sentences(model, genres)
-
-    return art_emb, gen_emb
+    return art_emb
 
 
 

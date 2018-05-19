@@ -1,6 +1,6 @@
 # coding: utf-8
 import torch
-from utils import l2norm, xavier_weight, init_lstm
+from ISE_Pytorch.utils import l2norm, xavier_weight, init_lstm
 from torch.autograd import Variable
 import torch.nn.init as I
 

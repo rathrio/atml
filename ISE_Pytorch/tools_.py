@@ -51,6 +51,52 @@ def encode_sentences(model, X, verbose=False, batch_size=128):
     features = Variable(torch.from_numpy(features).cuda())
     return features
 
+def embbed_sentences(model, X, verbose=False, batch_size=128):
+    """
+    Encode sentences into the joint embedding space
+    """
+    model_op= model.model_options
+    features = numpy.zeros((len(X), model_op['dim']), dtype='float32')
+
+    # length dictionary
+    ds = defaultdict(list)
+
+    captions = [s.split() for s in X]
+
+    for i,s in enumerate(captions):
+        ds[len(s)].append(i)
+
+
+    # quick check if a word is in the dictionary
+    d = defaultdict(lambda : 0)
+    for w in model_op['worddict'].keys():
+        d[w] = 1
+
+    # Get features. This encodes by length, in order to avoid wasting computation
+    for k in ds.keys(): # indices of captions of a particular length
+        if verbose:
+            print (k)
+        numbatches = len(ds[k]) // batch_size + 1
+        for minibatch in range(numbatches):
+            caps = ds[k][minibatch::numbatches]
+            caption = [captions[c] for c in caps]
+
+            seqs = []
+            for i, cc in enumerate(caption):
+                #get the indices of words from dictinary for each
+                seqs.append([model_op['worddict'][w] if d[w] > 0 and model_op['worddict'][w] < model_op['n_words'] else 1 for w in cc])
+            x = numpy.zeros((k+1, len(caption))).astype('int64')
+            for idx, s in enumerate(seqs):
+                x[:k,idx] = s
+
+            x = Variable(torch.from_numpy(x).cuda())
+            ff = model.forward_sens(x) #batch, l2norm
+
+            for ind, c in enumerate(caps):
+                features[c] = ff[ind].data.cpu().numpy()
+
+    features = Variable(torch.from_numpy(features).cuda())
+    return features
 
 
 

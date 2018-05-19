@@ -29,7 +29,7 @@ class MusicDataset(Dataset):
         self.albums = []
         self.artist_name = ''
 
-        with open("data/metadata.csv") as csvfile:
+        with open(path_to_metadata, encoding='utf-8') as csvfile:
             reader = csv.reader(csvfile, delimiter=';')
             next(reader, None)  # skip headers
             for row in reader:
@@ -74,7 +74,7 @@ class PairwiseRankingLoss(torch.nn.Module):
         super(PairwiseRankingLoss, self).__init__()
         self.margin = margin
 
-    def forward(self, artist,genre, target_gen, target_art):#
+    def forward(self, artist,genre,target_art, target_gen ):#
         margin = 0.2
         # compute vector-vector score matrix of generated and expected
         #between artist and genres from vgg
