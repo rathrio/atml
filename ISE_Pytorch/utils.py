@@ -7,7 +7,7 @@ def l2norm(input, p=2.0, dim=1, eps=1e-12):
     """
     Compute L2 norm, row-wise
     """
-    norm_c = input.norm(p, dim,keepdim = True).detach()
+    norm_c = input.norm(p, dim,keepdim = True)
     out = input / norm_c.clamp(min=eps).detach()
     return out.expand_as(input)
 

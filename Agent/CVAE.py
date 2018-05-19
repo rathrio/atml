@@ -65,8 +65,10 @@ class CVAE(nn.Module):
         self.fc1 = nn.Linear(1000, 512)
         self.fc11 = nn.Linear(512,256)
 
-
-        self.relu = nn.ReLU()
+        self.relu = nn.LeakyReLU()
+        self.relu1 = nn.LeakyReLU()
+        self.relu2 = nn.LeakyReLU()
+        self.relu3 = nn.LeakyReLU()
         self.fc21 = nn.Linear(256, ZDIMS)  # mu layer
         self.fc22 = nn.Linear(256, ZDIMS)  # logvariance layer
         # this last layer bottlenecks through ZDIMS connections
@@ -75,12 +77,15 @@ class CVAE(nn.Module):
         # from bottleneck to artist/genre dim
         self.fc3 = nn.Linear(ZDIMS, 196)
         self.fc4 = nn.Linear(196, 784)
+        self.fc31 = nn.Linear(ZDIMS, 196)
+        self.fc41 = nn.Linear(196, 784)
+        self.fc32 = nn.Linear(ZDIMS, 196)
+        self.fc42 = nn.Linear(196, 784)
+
         self.fc5 = nn.Linear(784, 1000)
         self.fc51 = nn.Linear(784, 1000)
         self.fc52 = nn.Linear(784, 1000)
-        self.tan1 = nn.Tanh()
-        self.tan2 = nn.Tanh()
-        self.tan3 = nn.Tanh()
+
         self.norm = nn.BatchNorm1d(1000)
 
 
@@ -147,22 +152,22 @@ class CVAE(nn.Module):
             return mu
 
     def decode_genre(self, z: Variable) -> Variable: #return some dim vector
-        z = self.fc3(z)
-        z = self.fc4(z)
-        z = self.relu(self.fc5(z))
-        return self.tan1(z)
+        z = self.fc32(z)
+        z = self.fc42(z)
+        z = self.relu1(self.fc5(z))
+        return (z)
 
     def decode_artist(self, z: Variable) -> Variable: #return some dim vector
-        z= self.fc3(z)
-        z= self.fc4(z)
-        z= self.relu(self.fc51(z))
-        return self.tan2(z)
+        z= self.fc31(z)
+        z= self.fc41(z)
+        z= self.relu1(self.fc51(z))
+        return (z)
 
     def decode_pic(self, z: Variable) -> Variable: #return some dim vector
         z= self.fc3(z)
-        z= self.fc4(z)
-        z= self.relu(self.fc52(z))
-        return self.tan3(z)
+        z= self.fc42(z)
+        z= self.fc52(z)
+        return (z)
 
     def forward(self, x: Variable) -> (Variable, Variable, Variable,Variable, Variable): # we 1000 dim vector
         #and retrieve a  percieved distribution, using it to decode artist, genre, and vgg features back
@@ -181,7 +186,7 @@ if os.path.isfile('tesnsor.pt'):
     print('loading saved agent mode')
     model.load_state_dict(torch.load('tesnsor.pt'))
 lp = latent_dist()
-criterion = nn.MSELoss()
+criterion = nn.KLDivLoss()
 def loss_function(vggs, artists,genres, dec_vggs, dec_artists, dec_genres, mu, logvar) -> Variable:
 
     #pass through pretrained sytem and get embedding
@@ -208,8 +213,8 @@ def loss_function(vggs, artists,genres, dec_vggs, dec_artists, dec_genres, mu, l
     # KLD tries to push the distributions as close as possible to unit Gaussian
     return BCE + KLD #BCE1 + BCE2+BCE3+ KLD
 
-optimizer = optim.Adam([p for p in model.parameters()
-                            if p.requires_grad], lr=1e-3)
+params = filter(lambda p: p.requires_grad, model.parameters())
+optimizer = optim.Adam(params, lr=1e-3, weight_decay= 3e-4)
 
 scheduler = ReduceLROnPlateau(optimizer, factor=0.1, patience=4, mode='min',
                                       verbose=True, threshold=1e-8)
@@ -237,7 +242,10 @@ def train(epoch):
         # calculate the distance with vae space, also our embedding
 
         loss.backward()
+        torch.nn.utils.clip_grad_norm_(params, 1.0)
         train_loss += loss.data.item()
+
+
         optimizer.step()
         if batch_idx % LOG_INTERVAL == 0:
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
@@ -265,17 +273,9 @@ def validation(epoch):
 
             dec_vgg, decoded_artist, decoded_genre, mu, logvar = model(vgg_feature)
             test_loss += loss_function(vgg_feature,artist,genre,dec_vgg,decoded_artist, decoded_genre, mu, logvar)
-            if i% 10 == 0:
-                genre_emb = get_embedding(model.itag_model, genre)
-                artist_emb = get_embedding(model.itag_model, artist)
+            ''' if i% 10 == 0:
 
-                (r1g, r5g, r10g, medrg) = i2t(decoded_genre, genre_emb)#pass in vector and its corresponding matching vector
-                print("Image to genre: %.1f, %.1f, %.1f, %.1f" % (r1g, r5g, r10g, medrg))
-
-                (r1a, r5a, r10a, medra) = i2t(decoded_artist, artist_emb)
-                print("Image to Artist: %.1f, %.1f, %.1f, %.1f" % (r1a, r5a, r10a, medra))
-
-                '''print('test_Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                    print('test_Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                     epoch, i * len(vgg_feature), len(test_loader.dataset),
                            100. * i / len(test_loader),
                            test_loss.data.item() / len(vgg_feature)))'''
@@ -285,7 +285,18 @@ def validation(epoch):
             #todo for semantics reasoning
             #use the classifier to determine their respective artist, and genre
             #then also use it on the decoded vectors, then compare
+    genre_emb = get_embedding(model.itag_model, genre)
+    artist_emb = get_embedding(model.itag_model, artist)
+    vgg_emb = model.itag_model.linear(vgg_feature)
 
+    (r1g, r5g, r10g, medrg) = i2t(decoded_genre, genre_emb)  # pass in vector and its corresponding matching vector
+    print("genre to genre vector recal: %.1f, %.1f, %.1f, %.1f" % (r1g, r5g, r10g, medrg))
+
+    (r1a, r5a, r10a, medra) = i2t(decoded_artist, artist_emb)
+    print("Artist to Artist vector recal: %.1f, %.1f, %.1f, %.1f" % (r1a, r5a, r10a, medra))
+
+    (r1v, r5v, r10v, medrv) = i2t(dec_vgg, vgg_emb)
+    print("vgg to vgg vector recal: %.1f, %.1f, %.1f, %.1f" % (r1v, r5v, r10v, medrv))
     test_loss.data /= len(test_loader.dataset)
 
     print('====> Test set loss: {:.4f}'.format(test_loss))

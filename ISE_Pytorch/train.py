@@ -149,7 +149,7 @@ def trainer(data='f30k',
             if numpy.mod(uidx, validFreq) == 0:
                 with torch.no_grad():
                     print('Epoch ', eidx, '\tUpdate@ ', uidx, '\tCost ', cost.data.item())
-                    (r1, r5, r10, medr) = i2t(im, x)
+                    (r1, r5, r10, medr) = i2t(im, x) #distances with l2norm
                     logging.info("Image to text: %.1f, %.1f, %.1f, %.1f" % (r1, r5, r10, medr))
 
                     (r1g, r5g, r10g, medrg) = i2t(im, genre)
