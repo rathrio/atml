@@ -14,7 +14,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 
-from ISE_Pytorch.evaluation import get_embedding
+from ISE_Pytorch.evaluation import get_embedding, i2t
 from Agent.dataset_loaders import  MusicDataset, make_stratified_splits, PairwiseRankingLoss as latent_dist
 from ISE_Pytorch.model import Img_Sen_Artist_Ranking
 # changed configuration to this instead of argparse for easier interaction
@@ -76,24 +76,27 @@ class CVAE(nn.Module):
         self.fc3 = nn.Linear(ZDIMS, 196)
         self.fc4 = nn.Linear(196, 784)
         self.fc5 = nn.Linear(784, 1000)
-        self.fc31 = nn.Linear(ZDIMS, 196)
-        self.fc41 = nn.Linear(196, 700)
-        self.fc51 = nn.Linear(700, 1000)
-        self.sigmoid = nn.Sigmoid()
+        self.fc51 = nn.Linear(784, 1000)
+        self.fc52 = nn.Linear(784, 1000)
+        self.tan1 = nn.Tanh()
+        self.tan2 = nn.Tanh()
+        self.tan3 = nn.Tanh()
+        self.norm = nn.BatchNorm1d(1000)
+
 
         #init ISE model tobe used later by agent
         if os.path.exists(save_loc ):
-            logging.info('loading. options..' + save_loc)
+            print('loading. options..' + save_loc)
             with open('%s/f30k_params_lstm.pkl' % save_loc, 'rb') as f:
                 model_options = pickle.load(f)
 
         self.itag_model = Img_Sen_Artist_Ranking(model_options) # an instance of itag
         #load saved weights
         assert os.path.exists('%s/f30k_model_lstm.pkl' % save_loc)
-        logging.info('Loading model...')
+        print('Loading model...')
 
         self.itag_model.load_state_dict(torch.load('%s/f30k_model_lstm.pkl' % save_loc))
-        logging.info('model loading done')
+        print('model loading done')
         self.itag_model.cuda()
         #turn traning off
         self.itag_model.eval()
@@ -147,39 +150,50 @@ class CVAE(nn.Module):
         z = self.fc3(z)
         z = self.fc4(z)
         z = self.relu(self.fc5(z))
-        return self.sigmoid(z)
+        return self.tan1(z)
 
     def decode_artist(self, z: Variable) -> Variable: #return some dim vector
-        z= self.fc31(z)
-        z= self.fc41(z)
+        z= self.fc3(z)
+        z= self.fc4(z)
         z= self.relu(self.fc51(z))
-        return self.sigmoid(z)
+        return self.tan2(z)
 
-    def forward(self, x: Variable) -> (Variable, Variable, Variable,Variable): # we pass a vgg some vgg features
+    def decode_pic(self, z: Variable) -> Variable: #return some dim vector
+        z= self.fc3(z)
+        z= self.fc4(z)
+        z= self.relu(self.fc52(z))
+        return self.tan3(z)
+
+    def forward(self, x: Variable) -> (Variable, Variable, Variable,Variable, Variable): # we 1000 dim vector
+        #and retrieve a  percieved distribution, using it to decode artist, genre, and vgg features back
+        #returns decoded artist, vgg features, genres , mu and std
 
         # input size is 1000 dim of embbed output
         x_emb = self.itag_model.linear(x) # returns 1000 dim vector
-        x_emb = F.normalize(x_emb)
-        mu, logvar = self.encode(x_emb.view(-1, 1000))# should normalize
+        x_emb = self.norm(x_emb)
+        mu, logvar = self.encode(x_emb.view(-1, 1000))
         z = self.reparameterize(mu, logvar)
-        return self.decode_artist(z), self.decode_genre(z), mu, logvar
+        return self.decode_pic(z),self.decode_artist(z), self.decode_genre(z), mu, logvar
 
 
 model = CVAE(r'C:\Users\alvin\PycharmProjects\atml\ISE_Pytorch\vse').cuda()
 if os.path.isfile('tesnsor.pt'):
     print('loading saved agent mode')
     model.load_state_dict(torch.load('tesnsor.pt'))
-
-def loss_function(genres, artists, dec_artist, dec_genre, mu, logvar) -> Variable:
+lp = latent_dist()
+criterion = nn.MSELoss()
+def loss_function(vggs, artists,genres, dec_vggs, dec_artists, dec_genres, mu, logvar) -> Variable:
 
     #pass through pretrained sytem and get embedding
     #do forward pass of ISE here for embedding
+    vgg_emb = model.itag_model.linear(vggs)
     genre_emb=  get_embedding (model.itag_model, genres)
     artist_emb= get_embedding(model.itag_model, artists)
-
-    lp = latent_dist()
-    # how well do input data form itag and decoded vector from agent agree?
-    BCE = lp(dec_artist, dec_genre,   artist_emb, genre_emb ) # make loss for decoders here
+    # how well does embedded artist from ,  and decoded vector from agent agree?
+    BCE = lp(dec_vggs, dec_artists, dec_genres, vgg_emb, artist_emb, genre_emb ) # make loss for decoders here
+    #BCE1 = criterion(dec_artists, artist_emb)
+    #BCE2 = criterion(dec_genres, genre_emb)
+    #BCE3 = criterion(dec_vggs, vgg_emb)
 
     # KLD is Kullback–Leibler divergence -- how much does one learned
     # distribution deviate from another, in this specific case the
@@ -192,7 +206,7 @@ def loss_function(genres, artists, dec_artist, dec_genre, mu, logvar) -> Variabl
 
     # BCE tries to make our reconstruction as accurate as possible
     # KLD tries to push the distributions as close as possible to unit Gaussian
-    return BCE + KLD
+    return BCE + KLD #BCE1 + BCE2+BCE3+ KLD
 
 optimizer = optim.Adam([p for p in model.parameters()
                             if p.requires_grad], lr=1e-3)
@@ -216,10 +230,10 @@ def train(epoch):
         # push whole batch of data through VAE.forward() to get recon_loss
         #model take the vgg and make embedding itself and return a new generated vector.
 
-        decoded_artist, decoded_genre,  mu, logvar = model(vgg_feature)
+        dec_vgg, decoded_artist, decoded_genre,  mu, logvar = model(vgg_feature)
         # calculate scalar loss
         #get the embedded vectors of genre and artist for conditional decoding here
-        loss = loss_function(genre,artist,decoded_artist, decoded_genre, mu, logvar)
+        loss = loss_function(vgg_feature,artist,genre,dec_vgg,decoded_artist, decoded_genre, mu, logvar)
         # calculate the distance with vae space, also our embedding
 
         loss.backward()
@@ -249,14 +263,22 @@ def validation(epoch):
 
         with torch.no_grad():
 
-            decoded_artist, decoded_genre, mu, logvar = model(vgg_feature)
-            test_loss += loss_function(genre,artist,decoded_artist, decoded_genre, mu, logvar)
-            if i% 10 == 20:
+            dec_vgg, decoded_artist, decoded_genre, mu, logvar = model(vgg_feature)
+            test_loss += loss_function(vgg_feature,artist,genre,dec_vgg,decoded_artist, decoded_genre, mu, logvar)
+            if i% 10 == 0:
+                genre_emb = get_embedding(model.itag_model, genre)
+                artist_emb = get_embedding(model.itag_model, artist)
 
-                print('test_Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                (r1g, r5g, r10g, medrg) = i2t(decoded_genre, genre_emb)#pass in vector and its corresponding matching vector
+                print("Image to genre: %.1f, %.1f, %.1f, %.1f" % (r1g, r5g, r10g, medrg))
+
+                (r1a, r5a, r10a, medra) = i2t(decoded_artist, artist_emb)
+                print("Image to Artist: %.1f, %.1f, %.1f, %.1f" % (r1a, r5a, r10a, medra))
+
+                '''print('test_Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                     epoch, i * len(vgg_feature), len(test_loader.dataset),
                            100. * i / len(test_loader),
-                           test_loss.data.item() / len(vgg_feature)))
+                           test_loss.data.item() / len(vgg_feature)))'''
             #n = min(data[0].size(0), 8) #get first 8 pics
             # for the first 128 batch of the epoch, show the first 8 input digits
 

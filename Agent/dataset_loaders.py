@@ -74,19 +74,23 @@ class PairwiseRankingLoss(torch.nn.Module):
         super(PairwiseRankingLoss, self).__init__()
         self.margin = margin
 
-    def forward(self, artist,genre,target_art, target_gen ):#
+    def forward(self, vgg,artist,genre,target_vgg, target_art, target_gen ):#
         margin = 0.2
         # compute vector-vector score matrix of generated and expected
         #between artist and genres from vgg
         #s = batch,l2norms_vab_size
 
+        score_vgg = torch.mm(artist, target_art.transpose(1, 0))
         score_artist = torch.mm(artist, target_art.transpose(1, 0))
         score_genre = torch.mm(genre, genre.transpose(1, 0))
 
 
-        diagonala,diagonalg  = score_artist.diag(), score_genre.diag()
+        diagonalv, diagonala,diagonalg  = score_vgg, score_artist.diag(), score_genre.diag()
 
         # compare every diagonal score to scores in its column (i.e, all contrastive generated vectors for vectors)
+        cost_vgg = torch.max(Variable(torch.zeros(score_vgg.size()[0], score_vgg.size()[1]).cuda()),
+                                (margin - diagonala).expand_as(score_vgg) + score_vgg)
+
         cost_artist = torch.max(Variable(torch.zeros(score_artist.size()[0], score_artist.size()[1]).cuda()),
                                 (margin-diagonala).expand_as(score_artist)+score_artist)
 
@@ -95,10 +99,11 @@ class PairwiseRankingLoss(torch.nn.Module):
 
 
         for i in range(score_artist.size()[0]):
+            cost_vgg[i, i] = 0
             cost_artist[i, i] = 0
             cost_genre[i, i] = 0
 
-        return cost_artist.sum() + cost_genre.sum()
+        return cost_artist.sum() + cost_genre.sum() +cost_vgg.sum()
     #return the cost for the distances between the generated features , and the features of some layer of same size for
     #used for classification
 
