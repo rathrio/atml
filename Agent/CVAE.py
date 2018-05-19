@@ -21,7 +21,7 @@ from ISE_Pytorch.model import Img_Sen_Artist_Ranking
 CUDA = True
 SEED = 1
 BATCH_SIZE = 128
-LOG_INTERVAL = 10
+LOG_INTERVAL = 100
 EPOCHS = 500
 
 # connections through the autoencoder bottleneck
@@ -41,7 +41,7 @@ kwargs = {'num_workers': 0, 'pin_memory': True} if CUDA else {}
 music_dataset = MusicDataset(r"C:\Users\alvin\PycharmProjects\atml\data/metadata.csv", r'C:\Users\alvin\PycharmProjects\pytorch-skipthoughts/music_alb.npy' ) #if args are needed
 #train_index, val_index = make_stratified_splits(music_dataset)
 train_loader = DataLoader(music_dataset, batch_size=BATCH_SIZE, shuffle=True, **kwargs)
-test_loader =  DataLoader(music_dataset, batch_size=16, shuffle=True, **kwargs)
+test_loader =  DataLoader(music_dataset, batch_size=256, shuffle=True, **kwargs)
 
 class CVAE(nn.Module):
     def __init__(self, save_loc):
@@ -216,6 +216,7 @@ def train(epoch):
 
     print('====> Epoch: {} Average loss: {:.4f}'.format(
           epoch, train_loss / len(train_loader.dataset)))
+    return train_loss
 
 
 def validation(epoch):
@@ -233,6 +234,10 @@ def validation(epoch):
 
             decoded_artist, decoded_genre, mu, logvar = model(vgg_feature)
             test_loss += loss_function(genre,artist,decoded_artist, decoded_genre, mu, logvar)
+            print('test_Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                epoch, i * len(vgg_feature), len(test_loader.dataset),
+                       100. * i / len(train_loader),
+                       test_loss.data.item() / len(vgg_feature)))
             #n = min(data[0].size(0), 8) #get first 8 pics
             # for the first 128 batch of the epoch, show the first 8 input digits
 
@@ -245,14 +250,15 @@ def validation(epoch):
     print('====> Test set loss: {:.4f}'.format(test_loss))
     return test_loss
 
-tmp=0
+tmp= 1e20
 for epoch in range(1, EPOCHS + 1):
-    train(epoch)
-    val_loss= validation(epoch)
-    if val_loss < tmp:
+    train_loss = train(epoch)
+    #val_loss= validation(epoch)
+    if train_loss < tmp:
+        print('saving model @', train_loss)
         torch.save(model.state_dict(), 'tesnsor.pt')
-        tnp=val_loss
-    scheduler.step(val_loss)
+        tnp=train_loss
+    scheduler.step(train_loss)
 
 
     '''#after training of agent call a random sample
