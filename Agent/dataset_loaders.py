@@ -123,7 +123,3 @@ class PairwiseRankingLoss(torch.nn.Module):
         return cost_artist.sum() + cost_genre.sum() + cost_vgg.sum()
     #return the cost for the distances between the generated features , and the features of some layer of same size for
     #used for classification
-
-    data = MusicDataset("./data/metadata.csv", "./data/music_alb.npy")
-    import IPython
-    IPython.embed()

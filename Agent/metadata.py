@@ -28,7 +28,7 @@ class Metadata:
         self.path_to_metadata = path_to_metadata
         self.albums = []
 
-        with open(path_to_metadata) as csvfile:
+        with open(path_to_metadata, encoding="utf-8") as csvfile:
             reader = csv.reader(csvfile, delimiter=';')
             next(reader, None)  # skip headers
             for row in reader:
