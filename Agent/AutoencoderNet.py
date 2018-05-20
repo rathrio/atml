@@ -1,14 +1,16 @@
 
+import numpy as np
 import torch
 import torch.utils.data
 from torch import nn, optim
 from torch.autograd import Variable
 from torch.nn import functional as F
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
-from torchvision import datasets, transforms
 from torchvision.utils import save_image
-import numpy as np
+from tensorboardX import SummaryWriter
+
 # changed configuration to this instead of argparse for easier interaction
 from Agent.dataset_loaders import MusicDataset
 
@@ -25,7 +27,8 @@ if CUDA:
 
 kwargs = {'num_workers': 0, 'pin_memory': True} if CUDA else {}
 
-music_dataset = MusicDataset(r"C:\Users\alvin\PycharmProjects\atml\data/metadata.csv", r'C:\Users\alvin\PycharmProjects\pytorch-skipthoughts/music_alb.npy' ) #if args are needed
+music_dataset = MusicDataset(r"C:\Users\alvin\PycharmProjects\atml\data/metadata.csv",
+                             r'C:\Users\alvin\PycharmProjects\pytorch-skipthoughts/music_alb.npy' ) #if args are needed
 #train_index, val_index = make_stratified_splits(music_dataset)
 #make splits
 
@@ -107,13 +110,15 @@ class VAE(nn.Module):
 
 
     def forward(self, x: Variable) -> (Variable, Variable, Variable):
-        mu, logvar = self.encode(x)
+        relu_out, out = self.encode(x)
         #z = self.reparameterize(mu, logvar)
-        out= self.decode(mu)
+        out= self.decode(out)
+        relu_out = self.decode(relu_out)
         x_off = int((out.shape[2] - 224) / 2)
         y_off = int((out.shape[2] - 224) / 2)
         out = out[:, :, x_off:x_off + 224, y_off:y_off + 224]
-        return out, mu, logvar
+        relu_out = relu_out[:, :, x_off:x_off + 224, y_off:y_off + 224]
+        return out, relu_out
 
 
 model = VAE()
@@ -125,17 +130,20 @@ def loss_function(recon_x, x, mu, logvar) -> Variable:
 
     BCE = F.binary_cross_entropy(recon_x, x)
 
-    KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-    KLD /= BATCH_SIZE * 784
-    return BCE + KLD
+    #KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+    #KLD /= BATCH_SIZE * 784
+    return BCE #+ KLD
 
-optimizer = optim.Adam(model.parameters(), lr=1e-3)
+optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=3e-3)
+scheduler = ReduceLROnPlateau(optimizer, factor=0.1, patience=10, mode='min',
+                                      verbose=True, threshold=1e-8)
 
 
 def train(epoch):
 
     model.train()
-    train_loss = 0
+    train_out_loss = 0
+    train_relu_out_loss = 0
 
     for batch_idx, data in enumerate(train_loader):
 
@@ -146,24 +154,30 @@ def train(epoch):
 
         optimizer.zero_grad()
 
-        recon_batch, mu, logvar = model(actual picture here)
-        loss = loss_function(recon_batch, data, mu, logvar)
-        loss.backward()
-        train_loss += loss.data.item()
+        out, relu_out = model(actual picture here)
+        loss_out = loss_function(out, data)
+        loss_relu_out = loss_function(relu_out, data)
+        loss_out.backward()
+        loss_relu_out.backward()
+        train_out_loss += loss_out.data.item()
+        train_relu_out_loss += loss_relu_out.data.item()
         optimizer.step()
         if batch_idx % LOG_INTERVAL == 0:
-            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+            print('Train Epoch: {} [{}/{} ({:.0f}%)]\toutLoss: {:.6f}\treluedLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader),
-                loss.data.item() / len(data)))
+                loss_out.data.item() / len(data),
+                loss_relu_out.data.item() / len(data)))
 
-    print('====> Epoch: {} Average loss: {:.4f}'.format(
-          epoch, train_loss / len(train_loader.dataset)))
+    print('====> Epoch: {} Average losses: {:.4f}, {:.4f}'.format(
+          epoch, train_out_loss / len(train_loader.dataset),
+        train_out_loss / len(train_loader.dataset)))
+    return train_out_loss, train_out_loss
 
 
 def test(epoch):
     model.eval()
-    test_loss = 0
+    test_out_loss, test_relu_out_loss = 0
     for batch_idx, data in enumerate(train_loader):
 
         vgg_feature, artist, genre = data
@@ -171,23 +185,45 @@ def test(epoch):
 
         with torch.no_grad():
 
-            data = Variable(data)
-            recon_batch, mu, logvar = model(data)
-            test_loss += loss_function(recon_batch, data, mu, logvar).data.item()
-            if batch_idx == 0:
+            out, relu_out = model(vgg_feature)
+            test_out_loss += loss_function(out, actual_data).data.item()
+            test_relu_out_loss += loss_function(relu_out, actual_data).data.item()
+            '''if batch_idx == 0:
               n = min(data.size(0), 8)
               comparison = torch.cat([data[:n],
-                                      recon_batch.view(BATCH_SIZE, 1, 28, 28)[:n]])
+                                      out.view(BATCH_SIZE, 3, 224, 224)[:n]])
               save_image(comparison.data.cpu(),
-                         'results/reconstruction_' + str(epoch) + '.png', nrow=n)
+                         'results/reconstruction_' + str(epoch) + '.png', nrow=n)'''
 
-    test_loss /= len(test_loader.dataset)
-    print('====> Test set loss: {:.4f}'.format(test_loss))
+    test_out_loss /= len(test_loader.dataset)
+    test_relu_out_loss /= len(test_loader.dataset)
+    print('====> Test set loss: {:.4f}, {:.4f}'.format(test_out_loss,test_relu_out_loss))
+    return test_out_loss, test_relu_out_loss
 
-
+writer = SummaryWriter()
+tmp = 1e20
 for epoch in range(1, EPOCHS + 1):
-    train(epoch)
-    test(epoch)
+    train_out_loss, train_relu_out_loss = train(epoch)
+    test_out_loss, test_relu_out_loss= test(epoch)
+
+    # data grouping by `slash`
+    #writer.add_scalar('Evaluation/trainingLoss', train_out_loss, epoch)
+    #writer.add_scalar('Evaluation/Validation_set', val_loss, epoch)
+
+    writer.add_scalars('Evaluation/Train_Loss', {'Train_out': test_out_loss,
+                                                         'Train_relu_out': test_relu_out_loss,
+                                                         }, epoch)
+
+    writer.add_scalars('Evaluation/Test_Loss', {'Test_out': test_out_loss,
+                                                         'Test_relu_out': test_relu_out_loss,
+                                                         }, epoch)
+    total_loss = test_out_loss+test_relu_out_loss
+    if test_out_loss < tmp or test_relu_out_loss < tmp:
+        best = max(test_out_loss, test_relu_out_loss)
+        print('saving model @', best)
+        torch.save(model.state_dict(), ('agent_model@_%s.pt' % best))
+        tmp=best
+    scheduler.step(total_loss)
 
     ''' def forward(self, x):
         #x= nn.Linear(1000, 784)
