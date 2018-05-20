@@ -12,6 +12,7 @@ from torchvision.utils import save_image
 from tensorboardX import SummaryWriter
 from Agent.dataset_loaders import MusicDataset
 
+
 CUDA = True
 SEED = 1
 BATCH_SIZE = 1
