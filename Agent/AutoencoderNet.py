@@ -10,8 +10,6 @@ from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 from torchvision.utils import save_image
 from tensorboardX import SummaryWriter
-
-# changed configuration to this instead of argparse for easier interaction
 from Agent.dataset_loaders import MusicDataset
 
 CUDA = True
@@ -109,7 +107,7 @@ class VAE(nn.Module):
 
 
 
-    def forward(self, x: Variable) -> (Variable, Variable, Variable):
+    def forward(self, x: Variable) -> (Variable, Variable):
         relu_out, out = self.encode(x)
         #z = self.reparameterize(mu, logvar)
         out= self.decode(out)

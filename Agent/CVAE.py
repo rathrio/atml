@@ -1,21 +1,22 @@
-import logging
+import os
 import os
 import pickle
 from multiprocessing import freeze_support
+
 import numpy as np
 import torch
 import torch.utils.data
+from tensorboardX import SummaryWriter
 from torch import nn, optim
 from torch.autograd import Variable
-from torch.nn import functional as F
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
-from tensorboardX import SummaryWriter
 
+from Agent.dataset_loaders import MusicDataset, PairwiseRankingLoss as latent_dist
 from ISE_Pytorch.evaluation import get_embedding, i2t
-from Agent.dataset_loaders import  MusicDataset, make_stratified_splits, PairwiseRankingLoss as latent_dist
 from ISE_Pytorch.model import Img_Sen_Artist_Ranking
+
 # changed configuration to this instead of argparse for easier interaction
 CUDA = True
 SEED = 1
@@ -37,7 +38,8 @@ kwargs = {'num_workers': 0, 'pin_memory': True} if CUDA else {}
 # load downloaded  dataset
 # shuffle data at every epoch
 # load dataset
-music_dataset = MusicDataset(r"C:\Users\alvin\PycharmProjects\atml\data/metadata.csv", r'C:\Users\alvin\PycharmProjects\pytorch-skipthoughts/music_alb.npy' ) #if args are needed
+music_dataset = MusicDataset(r"C:\Users\alvin\PycharmProjects\atml\data/metadata.csv",
+                             r'C:\Users\alvin\PycharmProjects\pytorch-skipthoughts/music_alb.npy' ) #if args are needed
 #train_index, val_index = make_stratified_splits(music_dataset)
 #make splits
 
@@ -324,9 +326,10 @@ for epoch in range(1, EPOCHS + 1):
     writer.add_scalars('Vector to Vector Recal/Vgg_feat', {'r@1': rvs[0],
                                                          'r@5': rvs[1],
                                                          'r@10': rvs[2]}, epoch)
+    map_loss = ras[0]+ras[1]+ras[2]+rgs[0]+rgs[1]+rgs[2]+rvs[0]+rvs[1]+rvs[2]
     if val_loss < tmp:
-        print('saving model @', train_loss)
-        torch.save(model.state_dict(), 'tesnsor.pt')
+        print('saving model @', val_loss)
+        torch.save(model.state_dict(), ('agent_model@_%s.pt' % val_loss))
         tmp=val_loss
     scheduler.step(val_loss)
 

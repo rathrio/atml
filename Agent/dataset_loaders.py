@@ -8,6 +8,8 @@ from torch.autograd import Variable
 from torch.utils.data import Dataset
 import numpy as np
 import csv
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 
 # Place this at /var/tmp/albums/dataset_loaders.py or adjust the passed in
 # paths accordingly.
@@ -52,6 +54,54 @@ class MusicDataset(Dataset):
 
     def __len__(self):
         return self.vggfeatures.shape[0] # how to get length of the dataset
+
+
+class MusicDataset_transformed(Dataset):
+
+
+    def __init__(self, path_to_metadata, path_to_vggfeatures):
+        #some arguments needed for music dataset to function?
+        #place init of them here, like csv, folder_loc, etc
+        self.path_to_metadata = path_to_metadata
+        self.path_to_vggfeatures = path_to_vggfeatures
+
+        tmp_df = pd.read_csv(path_to_metadata)
+        self.mlb = LabelEncoder()
+
+        self.vggfeatures = np.load(path_to_vggfeatures)
+         #assume genre are the labels of the data
+        self.genre = self.mlb.fit_transform(tmp_df['breed'])  # index of genre in csv
+        #pass along later needed data
+        self.artist_name = tmp_df['the name']
+        self.title = tmp_df['title']
+
+        '''self.albums = []
+        self.artist_name = ''
+
+        with open(path_to_metadata, encoding='utf-8') as csvfile:
+            reader = csv.reader(csvfile, delimiter=';')
+            next(reader, None)  # skip headers
+            for row in reader:
+                self.albums.append(row)'''
+
+        print(f'Loaded {len(self.albums)} albums')
+
+        print(f'Loaded {self.vggfeatures.shape[0]} vggfeatures')
+
+    def __getitem__(self, index):
+        #how to get a single item
+        #What is needed is music vgg features extracted, artist name and genre
+
+        '''row = self.albums[index]
+        self.artist_name = row[2]
+        genre = row[5].split("|")[0]
+
+        return self.vggfeatures[index], self.artist_name, genre'''
+        return self.title[index], self.vggfeatures[index], self.artist_name[index], self.genre[index]
+
+    def __len__(self):
+        return self.vggfeatures.shape[0] # how to get length of the dataset
+
 
 def make_stratified_splits(dataset):
         x = dataset.vggfeatures
