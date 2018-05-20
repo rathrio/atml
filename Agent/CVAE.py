@@ -11,8 +11,7 @@ from torch.nn import functional as F
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
-from torchvision import datasets, transforms
-from torchvision.utils import save_image
+from tensorboardX import SummaryWriter
 
 from ISE_Pytorch.evaluation import get_embedding, i2t
 from Agent.dataset_loaders import  MusicDataset, make_stratified_splits, PairwiseRankingLoss as latent_dist
@@ -186,7 +185,7 @@ if os.path.isfile('tesnsor.pt'):
     print('loading saved agent mode')
     model.load_state_dict(torch.load('tesnsor.pt'))
 lp = latent_dist()
-criterion = nn.KLDivLoss()
+#criterion = nn.KLDivLoss()
 def loss_function(vggs, artists,genres, dec_vggs, dec_artists, dec_genres, mu, logvar) -> Variable:
 
     #pass through pretrained sytem and get embedding
@@ -194,6 +193,7 @@ def loss_function(vggs, artists,genres, dec_vggs, dec_artists, dec_genres, mu, l
     vgg_emb = model.itag_model.linear(vggs)
     genre_emb=  get_embedding (model.itag_model, genres)
     artist_emb= get_embedding(model.itag_model, artists)
+
     # how well does embedded artist from ,  and decoded vector from agent agree?
     BCE = lp(dec_vggs, dec_artists, dec_genres, vgg_emb, artist_emb, genre_emb ) # make loss for decoders here
     #BCE1 = criterion(dec_artists, artist_emb)
@@ -299,13 +299,31 @@ def validation(epoch):
     print("vgg to vgg vector recal: %.1f, %.1f, %.1f, %.1f" % (r1v, r5v, r10v, medrv))
     test_loss.data /= len(test_loader.dataset)
 
+
     print('====> Test set loss: {:.4f}'.format(test_loss))
-    return test_loss
+    return test_loss, (r1a,r5a,r10a),(r1g,r5g,r10g),(r1v,r5v,r10v)
 
 tmp= 1e20
+writer = SummaryWriter()
 for epoch in range(1, EPOCHS + 1):
     train_loss = train(epoch)
-    val_loss= validation(epoch)
+    val_loss, ras,rgs,rvs = validation(epoch)
+
+    # data grouping by `slash`
+    writer.add_scalar('Evaluation/trainingLoss', train_loss, epoch)
+    writer.add_scalar('Evaluation/Validation_set', val_loss, epoch)
+
+    writer.add_scalars('Vector to Vector Recal/Artist', {'r@1': ras[0],
+                                      'r@5': ras[1],
+                                      'r@10': ras[2]}, epoch)
+
+    writer.add_scalars('Vector to Vector Recal/Genres', {'r@1': rgs[0],
+                                                         'r@5': rgs[1],
+                                                         'r@10': rgs[2]}, epoch)
+
+    writer.add_scalars('Vector to Vector Recal/Vgg_feat', {'r@1': rvs[0],
+                                                         'r@5': rvs[1],
+                                                         'r@10': rvs[2]}, epoch)
     if val_loss < tmp:
         print('saving model @', train_loss)
         torch.save(model.state_dict(), 'tesnsor.pt')
@@ -313,6 +331,7 @@ for epoch in range(1, EPOCHS + 1):
     scheduler.step(val_loss)
 
 
+    #writer.add_embedding(features, metadata=label, label_img=images.unsqueeze(1))
     '''#after training of agent call a random sample
     sample = Variable(torch.randn(64, ZDIMS)) #64 random items frm latent space
 

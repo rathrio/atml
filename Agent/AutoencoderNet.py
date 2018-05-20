@@ -1,5 +1,4 @@
-import os
-from multiprocessing import freeze_support
+
 import torch
 import torch.utils.data
 from torch import nn, optim
@@ -10,7 +9,6 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
 import numpy as np
-
 # changed configuration to this instead of argparse for easier interaction
 from Agent.dataset_loaders import MusicDataset
 

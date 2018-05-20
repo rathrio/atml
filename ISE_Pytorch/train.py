@@ -5,6 +5,7 @@ import logging
 import os
 import pickle as pkl
 
+from tensorboardX import SummaryWriter
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from datasets import load_dataset
@@ -16,8 +17,6 @@ from model import Img_Sen_Artist_Ranking, PairwiseRankingLoss
 import numpy
 from tools_ import encode_sentences, encode_images
 from evaluation import i2t
-
-
 
 
 logging.basicConfig(level=logging.INFO)
@@ -125,6 +124,7 @@ def trainer(data='f30k',
     best_r1, best_r5, best_r10, best_medr = 0.0, 0.0, 0.0, 0
     best_step = 0
 
+    writer = SummaryWriter()
     for eidx in range(max_epochs):
 
         for x, im, artist, genre in train_iter:
@@ -144,21 +144,34 @@ def trainer(data='f30k',
             artist = Variable(torch.from_numpy(artist).cuda())
             genre = Variable(torch.from_numpy(genre).cuda())
             # Update
-            x, im, artist, genre = img_sen_model(x, im, artist, genre)
+            x1, im1, artist, genre = img_sen_model(x, im, artist, genre)
+
             #make validation on inout before trainer see it
             if numpy.mod(uidx, validFreq) == 0:
                 with torch.no_grad():
                     print('Epoch ', eidx, '\tUpdate@ ', uidx, '\tCost ', cost.data.item())
-                    (r1, r5, r10, medr) = i2t(im, x) #distances with l2norm
+                    writer.add_scalar('Evaluation/Validation_Loss', cost.data.item(), uidx)
+                    (r1, r5, r10, medr) = i2t(im1, x) #distances with l2norm
                     logging.info("Image to text: %.1f, %.1f, %.1f, %.1f" % (r1, r5, r10, medr))
 
-                    (r1g, r5g, r10g, medrg) = i2t(im, genre)
+                    (r1g, r5g, r10g, medrg) = i2t(im1, genre)
                     logging.info("Image to genre: %.1f, %.1f, %.1f, %.1f" % (r1g, r5g, r10g, medrg))
 
-                    (r1a, r5a, r10a, medra) = i2t(im, artist)
+                    (r1a, r5a, r10a, medra) = i2t(im1, artist)
                     logging.info("Image to Artist: %.1f, %.1f, %.1f, %.1f" % (r1a, r5a, r10a, medra))
 
                     logging.info("Cal Recall@K ")
+                    writer.add_scalars('Validation Recal/Image2Album', {'r@1':r1 ,
+                                                                         'r@5': r5,
+                                                                         'r@10': r10}, uidx)
+
+                    writer.add_scalars('Validation Recal/Image2Genres', {'r@1': r1g,
+                                                                         'r@5': r5g,
+                                                                         'r@10': r10g}, uidx)
+
+                    writer.add_scalars('Validation Recal/Image2Artist', {'r@1': r1a,
+                                                                           'r@5': r5a,
+                                                                           'r@10': r5a}, uidx)
 
                     curr_step = uidx / validFreq
 
@@ -184,7 +197,9 @@ def trainer(data='f30k',
                         lrate = 1e-4
                         for param_group in optimizer.param_groups:
                             param_group['lr'] = lrate
-            cost = loss_fn(im, x, artist, genre)
+            cost = loss_fn(im1, x, artist, genre)
+            writer.add_scalar('Evaluation/training_Loss', cost, uidx)
+
             optimizer.zero_grad()
             cost.backward()
             torch.nn.utils.clip_grad_norm_(params, grad_clip)
