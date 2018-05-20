@@ -221,7 +221,7 @@ for epoch in range(1, EPOCHS + 1):
     if test_out_loss < tmp or test_relu_out_loss < tmp:
         best = max(test_out_loss, test_relu_out_loss)
         print('saving model @', best)
-        torch.save(model.state_dict(), ('agent_model@_%s.pt' % best))
+        torch.save(model.state_dict(), ('auto_encoder_model@_%s.pt' % best))
         tmp=best
     scheduler.step(total_loss)
 
