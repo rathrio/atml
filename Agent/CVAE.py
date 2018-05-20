@@ -228,7 +228,7 @@ def train(epoch):
 
     for batch_idx, data in enumerate(train_loader):
 
-        vgg_feature, artist, genre = data
+        vgg_feature, artist, genre, image_path = data
         vgg_feature= vgg_feature.cuda()
 
 
@@ -268,7 +268,7 @@ def validation(epoch):
 
     # each data is of BATCH_SIZE (default 128) samples
     for i, data in enumerate(test_loader):
-        vgg_feature, artist, genre = data
+        vgg_feature, artist, genre, image_path = data
         vgg_feature = vgg_feature.cuda()
 
         with torch.no_grad():

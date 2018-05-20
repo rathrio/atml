@@ -4,7 +4,7 @@ from collections import namedtuple
 
 
 class Metadata:
-    Album = namedtuple("Album", ["id", "title", "artist", "artist_id", "songs", "genre"])
+    Album = namedtuple("Album", ["id", "title", "artist", "artist_id", "songs", "genre", "image_path"])
 
     genres = ["Electronic",
               "Rock",
@@ -39,7 +39,8 @@ class Metadata:
                         artist=row[2],
                         artist_id=row[3],
                         songs=row[4].split("|"),
-                        genre=row[5].split("|")[0]
+                        genre=row[5].split("|")[0],
+                        image_path=f'/var/tmp/albums/data/{row[0]}/{row[3]}/primary.jpg'
                     )
                 )
 
@@ -50,12 +51,6 @@ class Metadata:
 
     def genre(self, index):
         return self.genres[index]
-
-    # def genre_tensor(self, genre):
-    #     index = self.genres.index(genre)
-    #     t = torch.Tensor([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-    #     t[index] = 1
-    #     return t
 
     def album(self, index):
         return self.albums[index]

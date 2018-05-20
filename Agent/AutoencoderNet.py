@@ -145,7 +145,7 @@ def train(epoch):
 
     for batch_idx, data in enumerate(train_loader):
 
-        vgg_feature, artist, genre = data #todo edit dataset loader file to give picture for comparison
+        vgg_feature, artist, genre, image_path = data #todo edit dataset loader file to give picture for comparison
         # To train the autoencoder to be able to generate sampled data
         vgg_feature= vgg_feature.cuda()
         #todo Album piture = here
@@ -178,7 +178,7 @@ def test(epoch):
     test_out_loss, test_relu_out_loss = 0
     for batch_idx, data in enumerate(train_loader):
 
-        vgg_feature, artist, genre = data
+        vgg_feature, artist, genre, image_path = data
         vgg_feature= vgg_feature.cuda()
 
         with torch.no_grad():
