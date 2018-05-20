@@ -2,7 +2,7 @@
 #make some functin to accept some inputs and return some outputs vectors#
 #compare how close they are to extracted features that can tell actual information.
 
-from torchvision import  models, transforms
+from torchvision import models, transforms
 from PIL import Image
 import torch.nn as nn
 import torch
@@ -15,63 +15,47 @@ from AutoencoderNet import VAE
 
 import numpy as np
 
+cuda_available = torch.cuda.is_available()
+
+
 class Evaluation:
 
-    cuda_available = torch.cuda.is_available()
+    def __init__(self, autoencoder_model, vgg_model, itag_model):
+        self.autoencoder_model = autoencoder_model
+        self.vgg_model = vgg_model
+        self.itag_model = itag_model
 
     def is_image(self, f):
         return f.endswith(".png") or f.endswith(".jpg")
 
+    def getClosestRealImage(self, vgg_features):
+        return self.autoencoder_model(vgg_features)
+
     def getVggFeatures(self, file_path):
+        image = Image.open(file_path).convert('RGB')
 
-        vgg_model = models.vgg19_bn(pretrained=True)
-        vgg_model.classifier = nn.Sequential(*list(vgg_model.classifier.children())[:-3])
+        image = test_transform(image)
+        inputs = image.unsqueeze(0)
+        inputs = Variable(inputs)
 
-        if self.cuda_available:
-            vgg_model = vgg_model.cuda()
+        if cuda_available:
+            inputs = inputs.cuda()
 
-        vgg_model.eval()
-
-        if (self.is_image(file_path)):
-            image = Image.open(file_path).convert('RGB')
-
-            image = test_transform(image)
-            inputs = image.unsqueeze(0)
-            inputs = Variable(inputs)
-
-            if self.cuda_available:
-                inputs = inputs.cuda()
-
-            features = vgg_model(inputs)
+        features = self.vgg_model(inputs)
 
         return features
 
     def getImageTitleArtistGenreEmbeddings(self, vgg_features, title, artist, genre):
-
-        print('Loading ITAG options...')
-        with open('f30k_params_lstm.pkl', 'rb') as f:
-            model_options = pickle.load(f)
-        print('Options loaded.')
-
-        print('Loading ITAG model...')
-        itag_model = Img_Sen_Artist_Ranking(model_options)
-        itag_model.load_state_dict(torch.load('f30k_model_lstm.pkl'))
-        print('Model loaded.')
-
-        if self.cuda_available:
-            itag_model = itag_model.cuda()
-
-        itag_model.eval()
-
-        if self.cuda_available:
+        if cuda_available:
             vgg_features = vgg_features.cuda()
 
-        img_emb = itag_model.linear(vgg_features)
-        title_emb = get_embedding(itag_model, title)
-        artist_emb = get_embedding(itag_model, artist)
-        genre_emb =  get_embedding (itag_model, genre)
+        img_emb = self.itag_model.linear(vgg_features)
+        title_emb = get_embedding(self.itag_model, title)
+        artist_emb = get_embedding(self.itag_model, artist)
+        genre_emb = get_embedding(self.itag_model, genre)
 
         return title_emb, img_emb, artist_emb, genre_emb
+
 
 test_transform = transforms.Compose([
     transforms.Scale(224),
@@ -84,8 +68,34 @@ test_transform = transforms.Compose([
 #Main Method
 if __name__ == '__main__':
 
+    autoencoder = VAE()
+    autoencoder.load_state_dict(torch.load('autoencoder.pkl'))
+
+    vgg_model = models.vgg19_bn(pretrained=True)
+    vgg_model.classifier = nn.Sequential(
+        *list(vgg_model.classifier.children())[:-3])
+    vgg_model.eval()
+
+    if cuda_available:
+        vgg_model = vgg_model.cuda()
+
+    print('Loading ITAG options...')
+    with open('f30k_params_lstm.pkl', 'rb') as f:
+        model_options = pickle.load(f)
+    print('Options loaded.')
+
+    print('Loading ITAG model...')
+    itag_model = Img_Sen_Artist_Ranking(model_options)
+    itag_model.load_state_dict(torch.load('f30k_model_lstm.pkl'))
+    print('Model loaded.')
+
+    if cuda_available:
+        itag_model = itag_model.cuda()
+
+    itag_model.eval()
+
     # Evaluate Model
-    e = Evaluation()
+    e = Evaluation(autoencoder, vgg_model, itag_model)
 
     #Image File Path
     file_path = "primary.jpg"
@@ -108,5 +118,3 @@ if __name__ == '__main__':
 
     import IPython
     IPython.embed()
-
-
