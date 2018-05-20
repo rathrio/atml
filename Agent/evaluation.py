@@ -11,6 +11,8 @@ import pickle
 from ISE_Pytorch.model import Img_Sen_Artist_Ranking
 from ISE_Pytorch.evaluation import get_embedding
 
+from AutoencoderNet import VAE
+
 import numpy as np
 
 class Evaluation:
@@ -24,19 +26,19 @@ class Evaluation:
 
         vgg_model = models.vgg19_bn(pretrained=True)
         vgg_model.classifier = nn.Sequential(*list(vgg_model.classifier.children())[:-3])
-    
+
         if self.cuda_available:
             vgg_model = vgg_model.cuda()
-    
+
         vgg_model.eval()
 
         if (self.is_image(file_path)):
             image = Image.open(file_path).convert('RGB')
-            
+
             image = test_transform(image)
             inputs = image.unsqueeze(0)
             inputs = Variable(inputs)
-            
+
             if self.cuda_available:
                 inputs = inputs.cuda()
 
@@ -45,12 +47,12 @@ class Evaluation:
         return features
 
     def getImageTitleArtistGenreEmbeddings(self, vgg_features, title, artist, genre):
-        
+
         print('Loading ITAG options...')
         with open('f30k_params_lstm.pkl', 'rb') as f:
             model_options = pickle.load(f)
         print('Options loaded.')
-       
+
         print('Loading ITAG model...')
         itag_model = Img_Sen_Artist_Ranking(model_options)
         itag_model.load_state_dict(torch.load('f30k_model_lstm.pkl'))
@@ -81,7 +83,7 @@ test_transform = transforms.Compose([
 
 #Main Method
 if __name__ == '__main__':
-    
+
     # Evaluate Model
     e = Evaluation()
 
@@ -95,13 +97,16 @@ if __name__ == '__main__':
 
     #Calculate features
     vgg_features = e.getVggFeatures(file_path)
-    
+
     #Test with found features
     #t = np.load("music_alb.npy")
     #a = np.squeeze(vgg_features.data.numpy())
     #print(np.array_equal(t[5], a)) - True
 
     #Get ITAG Embeddings
-    title_emb, img_emb, artist_emb, genre_emb = e.getImageTitleArtistGenreEmbeddings(vgg_features, title, artist, genre)
+    # title_emb, img_emb, artist_emb, genre_emb = e.getImageTitleArtistGenreEmbeddings(vgg_features, title, artist, genre)
+
+    import IPython
+    IPython.embed()
 
 
