@@ -19,7 +19,7 @@
         display: flex;
         -ms-flex-wrap: wrap; /* IE10 */
         flex-wrap: wrap;
-        padding: 0 4px;
+        padding: 0 0px;
     }
 
     /* Create four equal columns that sits next to each other */
@@ -59,14 +59,14 @@
       <% if albums.size < 6 %>
         <% albums.each do |album| %>
           <div class="column">
-            <img src="<%= album.image %>" style="width:100%">
+            <img async src="<%= album.image %>" style="width:100%">
           </div>
         <% end %>
       <% else %>
         <% albums.each_slice((albums.size / 8.to_f).round) do |slice| %>
           <div class="column">
             <% slice.each do |album| %>
-              <img src="<%= album.image %>" style="width:100%">
+              <img async src="<%= album.image %>" style="width:100%">
             <% end %>
           </div>
         <% end %>
