@@ -1,0 +1,132 @@
+INFO:root:early stopping, jumping now...
+INFO:root:Image to text: 100.0, 100.0, 100.0, 1.0
+INFO:root:Image to genre: 100.0, 100.0, 100.0, 1.0
+Epoch 48914: reducing learning rate of group 0 to 1.0000e-05.
+Epoch 48955: reducing learning rate of group 0 to 1.0000e-06.
+Epoch 48996: reducing learning rate of group 0 to 1.0000e-07.
+Epoch  6        Update@  49000  Cost  57.77809143066406
+INFO:root:Image to text: 33.3, 66.7, 100.0, 2.0
+INFO:root:Image to genre: 33.3, 100.0, 100.0, 3.0
+INFO:root:Image to Artist: 33.3, 100.0, 100.0, 2.0
+INFO:root:Cal Recall@K
+INFO:root:early stopping, jumping now...
+INFO:root:Image to text: 100.0, 100.0, 100.0, 1.0
+INFO:root:Image to genre: 100.0, 100.0, 100.0, 1.0
+Epoch 49037: reducing learning rate of group 0 to 1.0000e-05.
+Epoch 49078: reducing learning rate of group 0 to 1.0000e-06.
+Epoch  6        Update@  49100  Cost  82.14152526855469
+INFO:root:Image to text: 0.0, 100.0, 100.0, 3.0
+INFO:root:Image to genre: 0.0, 100.0, 100.0, 3.0
+INFO:root:Image to Artist: 33.3, 33.3, 100.0, 6.0
+INFO:root:Cal Recall@K
+INFO:root:early stopping, jumping now...
+INFO:root:Image to text: 100.0, 100.0, 100.0, 1.0
+INFO:root:Image to genre: 100.0, 100.0, 100.0, 1.0
+Epoch 49119: reducing learning rate of group 0 to 1.0000e-05.
+Epoch 49160: reducing learning rate of group 0 to 1.0000e-06.
+Epoch  6        Update@  49200  Cost  106.88963317871094
+INFO:root:Image to text: 0.0, 100.0, 100.0, 3.0
+INFO:root:Image to genre: 0.0, 100.0, 100.0, 3.0
+INFO:root:Image to Artist: 66.7, 100.0, 100.0, 1.0
+INFO:root:Cal Recall@K
+INFO:root:early stopping, jumping now...
+INFO:root:Image to text: 100.0, 100.0, 100.0, 1.0
+INFO:root:Image to genre: 100.0, 100.0, 100.0, 1.0
+Epoch 49201: reducing learning rate of group 0 to 1.0000e-05.
+Epoch 49242: reducing learning rate of group 0 to 1.0000e-06.
+Epoch 49283: reducing learning rate of group 0 to 1.0000e-07.
+Epoch  6        Update@  49300  Cost  67.93142700195312
+INFO:root:Image to text: 33.3, 100.0, 100.0, 3.0
+INFO:root:Image to genre: 33.3, 100.0, 100.0, 3.0
+INFO:root:Image to Artist: 100.0, 100.0, 100.0, 1.0
+INFO:root:Cal Recall@K
+INFO:root:early stopping, jumping now...
+INFO:root:Image to text: 100.0, 100.0, 100.0, 1.0
+INFO:root:Image to genre: 100.0, 100.0, 100.0, 1.0
+Epoch 49324: reducing learning rate of group 0 to 1.0000e-05.
+Epoch 49365: reducing learning rate of group 0 to 1.0000e-06.
+Epoch  6        Update@  49400  Cost  88.26152038574219
+INFO:root:Image to text: 33.3, 100.0, 100.0, 5.0
+INFO:root:Image to genre: 33.3, 100.0, 100.0, 3.0
+INFO:root:Image to Artist: 33.3, 66.7, 100.0, 4.0
+INFO:root:Cal Recall@K
+INFO:root:early stopping, jumping now...
+INFO:root:Image to text: 100.0, 100.0, 100.0, 1.0
+INFO:root:Image to genre: 100.0, 100.0, 100.0, 1.0
+Epoch 49406: reducing learning rate of group 0 to 1.0000e-05.
+Epoch 49447: reducing learning rate of group 0 to 1.0000e-06.
+Epoch 49488: reducing learning rate of group 0 to 1.0000e-07.
+Epoch  6        Update@  49500  Cost  47.236961364746094
+INFO:root:Image to text: 33.3, 100.0, 100.0, 2.0
+INFO:root:Image to genre: 33.3, 100.0, 100.0, 2.0
+INFO:root:Image to Artist: 100.0, 100.0, 100.0, 1.0
+INFO:root:Cal Recall@K
+INFO:root:early stopping, jumping now...
+INFO:root:Image to text: 100.0, 100.0, 100.0, 1.0
+INFO:root:Image to genre: 100.0, 100.0, 100.0, 1.0
+Epoch 49529: reducing learning rate of group 0 to 1.0000e-05.
+Epoch 49570: reducing learning rate of group 0 to 1.0000e-06.
+Epoch  6        Update@  49600  Cost  81.3297119140625
+INFO:root:Image to text: 0.0, 100.0, 100.0, 3.0
+INFO:root:Image to genre: 33.3, 66.7, 100.0, 2.0
+INFO:root:Image to Artist: 66.7, 66.7, 100.0, 1.0
+INFO:root:Cal Recall@K
+INFO:root:early stopping, jumping now...
+INFO:root:Image to text: 100.0, 100.0, 100.0, 1.0
+INFO:root:Image to genre: 100.0, 100.0, 100.0, 1.0
+Epoch 49611: reducing learning rate of group 0 to 1.0000e-05.
+Epoch 49652: reducing learning rate of group 0 to 1.0000e-06.
+Epoch 49693: reducing learning rate of group 0 to 1.0000e-07.
+Epoch  6        Update@  49700  Cost  89.13835906982422
+INFO:root:Image to text: 0.0, 100.0, 100.0, 3.0
+INFO:root:Image to genre: 33.3, 100.0, 100.0, 2.0
+INFO:root:Image to Artist: 33.3, 100.0, 100.0, 4.0
+INFO:root:Cal Recall@K
+INFO:root:early stopping, jumping now...
+INFO:root:Image to text: 100.0, 100.0, 100.0, 1.0
+INFO:root:Image to genre: 100.0, 100.0, 100.0, 1.0
+Epoch 49734: reducing learning rate of group 0 to 1.0000e-05.
+Epoch 49775: reducing learning rate of group 0 to 1.0000e-06.
+Epoch  6        Update@  49800  Cost  91.52922821044922
+INFO:root:Image to text: 33.3, 100.0, 100.0, 2.0
+INFO:root:Image to genre: 66.7, 100.0, 100.0, 1.0
+INFO:root:Image to Artist: 33.3, 100.0, 100.0, 2.0
+INFO:root:Cal Recall@K
+INFO:root:early stopping, jumping now...
+INFO:root:Image to text: 100.0, 100.0, 100.0, 1.0
+INFO:root:Image to genre: 100.0, 100.0, 100.0, 1.0
+Epoch 49816: reducing learning rate of group 0 to 1.0000e-05.
+Epoch 49857: reducing learning rate of group 0 to 1.0000e-06.
+Epoch 49898: reducing learning rate of group 0 to 1.0000e-07.
+Epoch  6        Update@  49900  Cost  76.4562759399414
+INFO:root:Image to text: 33.3, 100.0, 100.0, 3.0
+INFO:root:Image to genre: 100.0, 100.0, 100.0, 1.0
+INFO:root:Image to Artist: 0.0, 100.0, 100.0, 3.0
+INFO:root:Cal Recall@K
+INFO:root:early stopping, jumping now...
+INFO:root:Image to text: 100.0, 100.0, 100.0, 1.0
+INFO:root:Image to genre: 100.0, 100.0, 100.0, 1.0
+Epoch 49939: reducing learning rate of group 0 to 1.0000e-05.
+Epoch 49980: reducing learning rate of group 0 to 1.0000e-06.
+Epoch  6        Update@  50000  Cost  85.66458129882812
+INFO:root:Image to text: 33.3, 100.0, 100.0, 2.0
+INFO:root:Image to genre: 33.3, 100.0, 100.0, 4.0
+INFO:root:Image to Artist: 33.3, 66.7, 100.0, 3.0
+INFO:root:Cal Recall@K
+INFO:root:early stopping, jumping now...
+INFO:root:Image to text: 100.0, 100.0, 100.0, 1.0
+INFO:root:Image to genre: 100.0, 100.0, 100.0, 1.0
+Epoch 50021: reducing learning rate of group 0 to 1.0000e-05.
+Epoch 50062: reducing learning rate of group 0 to 1.0000e-06.
+Epoch  6        Update@  50100  Cost  73.68498229980469
+INFO:root:Image to text: 66.7, 100.0, 100.0, 1.0
+INFO:root:Image to genre: 33.3, 100.0, 100.0, 2.0
+INFO:root:Image to Artist: 33.3, 100.0, 100.0, 2.0
+INFO:root:Cal Recall@K
+INFO:root:early stopping, jumping now...
+INFO:root:Image to text: 100.0, 100.0, 100.0, 1.0
+INFO:root:Image to genre: 100.0, 100.0, 100.0, 1.0
+Epoch 50103: reducing learning rate of group 0 to 1.0000e-05.
+Epoch 50144: reducing learning rate of group 0 to 1.0000e-06.
+INFO:root:Seen 800506 samples
+Epoch 50185: reducing learning rate of group 0 to 1.0000e-07.

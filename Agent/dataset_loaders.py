@@ -10,9 +10,25 @@ import numpy as np
 import csv
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+from PIL import Image
+
+from torchvision import transforms
+
+
+from metadata import Metadata
+
+
+test_transform = transforms.Compose([
+    transforms.Scale(224),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225])
+])
 
 # Place this at /var/tmp/albums/dataset_loaders.py or adjust the passed in
 # paths accordingly.
+
 
 class MusicDataset(Dataset):
     """An override of class Dataset.
@@ -25,19 +41,14 @@ class MusicDataset(Dataset):
     def __init__(self, path_to_metadata, path_to_vggfeatures):
         #some arguments needed for music dataset to function?
         #place init of them here, like csv, folder_loc, etc
+
         self.path_to_metadata = path_to_metadata
+        self.metadata = Metadata(path_to_metadata)
+
         self.path_to_vggfeatures = path_to_vggfeatures
 
-        self.albums = []
+        self.albums = self.metadata.albums
         self.artist_name = ''
-
-        with open(path_to_metadata, encoding='utf-8') as csvfile:
-            reader = csv.reader(csvfile, delimiter=';')
-            next(reader, None)  # skip headers
-            for row in reader:
-                self.albums.append(row)
-
-        print(f'Loaded {len(self.albums)} albums')
 
         self.vggfeatures = np.load(path_to_vggfeatures)
         print(f'Loaded {self.vggfeatures.shape[0]} vggfeatures')
@@ -46,67 +57,26 @@ class MusicDataset(Dataset):
         #how to get a single item
         #What is needed is music vgg features extracted, artist name and genre
 
-        row = self.albums[index]
-        self.artist_name = row[2]
-        genre = row[5].split("|")[0]
+        album = self.albums[index]
+        self.artist_name = album.artist
+        genre = album.genre
+        image_path = album.image_path
 
-        return self.vggfeatures[index], self.artist_name, genre
+        image = Image.open(image_path).convert('RGB')
 
-    def __len__(self):
-        return self.vggfeatures.shape[0] # how to get length of the dataset
+        image = test_transform(image)
 
-
-class MusicDataset_transformed(Dataset):
-
-
-    def __init__(self, path_to_metadata, path_to_vggfeatures):
-        #some arguments needed for music dataset to function?
-        #place init of them here, like csv, folder_loc, etc
-        self.path_to_metadata = path_to_metadata
-        self.path_to_vggfeatures = path_to_vggfeatures
-
-        tmp_df = pd.read_csv(path_to_metadata)
-        self.mlb = LabelEncoder()
-
-        self.vggfeatures = np.load(path_to_vggfeatures)
-         #assume genre are the labels of the data
-        self.genre = self.mlb.fit_transform(tmp_df['breed'])  # index of genre in csv
-        #pass along later needed data
-        self.artist_name = tmp_df['the name']
-        self.title = tmp_df['title']
-
-        '''self.albums = []
-        self.artist_name = ''
-
-        with open(path_to_metadata, encoding='utf-8') as csvfile:
-            reader = csv.reader(csvfile, delimiter=';')
-            next(reader, None)  # skip headers
-            for row in reader:
-                self.albums.append(row)'''
-
-        print(f'Loaded {len(self.albums)} albums')
-
-        print(f'Loaded {self.vggfeatures.shape[0]} vggfeatures')
-
-    def __getitem__(self, index):
-        #how to get a single item
-        #What is needed is music vgg features extracted, artist name and genre
-
-        '''row = self.albums[index]
-        self.artist_name = row[2]
-        genre = row[5].split("|")[0]
-
-        return self.vggfeatures[index], self.artist_name, genre'''
-        return self.title[index], self.vggfeatures[index], self.artist_name[index], self.genre[index]
+        return self.vggfeatures[index], self.artist_name, genre, image
 
     def __len__(self):
-        return self.vggfeatures.shape[0] # how to get length of the dataset
+        return self.vggfeatures.shape[0]  # how to get length of the dataset
 
 
 def make_stratified_splits(dataset):
         x = dataset.vggfeatures
-        y = dataset.artist_name # startify is based on labels
-        test_straf = StratifiedShuffleSplit(n_splits=1, test_size=0.2, train_size=0.8, random_state=4456)
+        y = dataset.artist_name  # startify is based on labels
+        test_straf = StratifiedShuffleSplit(
+            n_splits=1, test_size=0.2, train_size=0.8, random_state=4456)
         train_index, val_index = next(test_straf.split(x, y))
 
         # we can equiv also retrn these indexes for the random sampler to do its job
@@ -117,14 +87,13 @@ def make_stratified_splits(dataset):
 # dataset.__getitem__(12347)
 
 
-
 class PairwiseRankingLoss(torch.nn.Module):
 
     def __init__(self, margin=1.0):
         super(PairwiseRankingLoss, self).__init__()
         self.margin = margin
 
-    def forward(self, vgg,artist,genre,target_vgg, target_art, target_gen ):#
+    def forward(self, vgg, artist, genre, target_vgg, target_art, target_gen):
         margin = 0.2
         # compute vector-vector score matrix of generated and expected
         #between artist and genres from vgg
@@ -134,26 +103,23 @@ class PairwiseRankingLoss(torch.nn.Module):
         score_artist = torch.mm(artist, target_art.transpose(1, 0))
         score_genre = torch.mm(genre, genre.transpose(1, 0))
 
-
-        diagonalv, diagonala,diagonalg  = score_vgg, score_artist.diag(), score_genre.diag()
+        diagonalv, diagonala, diagonalg = score_vgg, score_artist.diag(), score_genre.diag()
 
         # compare every diagonal score to scores in its column (i.e, all contrastive generated vectors for vectors)
         cost_vgg = torch.max(Variable(torch.zeros(score_vgg.size()[0], score_vgg.size()[1]).cuda()),
-                                (margin - diagonala).expand_as(score_vgg) + score_vgg)
+                             (margin - diagonala).expand_as(score_vgg) + score_vgg)
 
         cost_artist = torch.max(Variable(torch.zeros(score_artist.size()[0], score_artist.size()[1]).cuda()),
                                 (margin-diagonala).expand_as(score_artist)+score_artist)
 
         cost_genre = torch.max(Variable(torch.zeros(score_genre.size()[0], score_genre.size()[1]).cuda()),
-                                (margin - diagonalg).expand_as(score_genre) + score_genre)
-
+                               (margin - diagonalg).expand_as(score_genre) + score_genre)
 
         for i in range(score_artist.size()[0]):
             cost_vgg[i, i] = 0
             cost_artist[i, i] = 0
             cost_genre[i, i] = 0
 
-        return cost_artist.sum() + cost_genre.sum() +cost_vgg.sum()
+        return cost_artist.sum() + cost_genre.sum() + cost_vgg.sum()
     #return the cost for the distances between the generated features , and the features of some layer of same size for
     #used for classification
-
