@@ -15,7 +15,7 @@ class HomogeneousData():
 
     def prepare(self):
         self.caps = self.data[0]
-        self.feats = self.data[1]  # todo will be images and have to put model to get features here
+        self.feats = self.data[1]
 
         assert len(self.caps) == len(self.data[2])
 

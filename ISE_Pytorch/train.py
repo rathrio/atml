@@ -148,6 +148,7 @@ def trainer(data='f30k',
 
             #make validation on inout before trainer see it
             if numpy.mod(uidx, validFreq) == 0:
+                img_sen_model.eval()
                 with torch.no_grad():
                     print('Epoch ', eidx, '\tUpdate@ ', uidx, '\tCost ', cost.data.item())
                     writer.add_scalar('Evaluation/Validation_Loss', cost.data.item(), uidx)
@@ -197,7 +198,9 @@ def trainer(data='f30k',
                         lrate = 1e-4
                         for param_group in optimizer.param_groups:
                             param_group['lr'] = lrate
-            cost = loss_fn(im1, x, artist, genre)
+
+            img_sen_model.train()
+            cost = loss_fn(im1, x1, artist, genre)
             writer.add_scalar('Evaluation/training_Loss', cost, uidx)
 
             optimizer.zero_grad()

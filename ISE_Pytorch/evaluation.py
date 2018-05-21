@@ -46,7 +46,7 @@ def i2t(images, captions, npts=None):
     for index in range(npts):
 
         # Get query image
-        im = images[5 * index].unsqueeze(0)
+        im = images[5 * index].unsqueeze(0) #5 images in the end
 
         # Compute scores
         d = torch.mm(im, captions.t())  # multiply a set of image norms and their caption norms
