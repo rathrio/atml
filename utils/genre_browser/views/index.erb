@@ -56,12 +56,20 @@
   </head>
   <body>
     <div class="row"> 
-      <% albums.each_slice((albums.size / 8.to_f).round) do |slice| %>
-      <div class="column">
-        <% slice.each do |album| %>
-          <img src="<%= album.image %>" style="width:100%">
+      <% if albums.size < 6 %>
+        <% albums.each do |album| %>
+          <div class="column">
+            <img src="<%= album.image %>" style="width:100%">
+          </div>
         <% end %>
-      </div>
+      <% else %>
+        <% albums.each_slice((albums.size / 8.to_f).round) do |slice| %>
+          <div class="column">
+            <% slice.each do |album| %>
+              <img src="<%= album.image %>" style="width:100%">
+            <% end %>
+          </div>
+        <% end %>
       <% end %>
   </body>
 </html>

@@ -12,7 +12,20 @@ class Album < Sequel::Model(DB[:albums])
   end
 end
 
-get '/:genre' do
-  albums = Album.where(genre: params[:genre]).to_a.sample(400)
-  erb :index, locals: { albums: albums }
+get '/' do
+  albums = Album
+
+  if params[:genre].nil? && params[:artist].nil?
+    return "No filters applied"
+  end
+
+  if params[:genre]
+    albums = albums.where(genre: params[:genre])
+  end
+
+  if params[:artist]
+    albums = albums.where(Sequel.like(:artist, "%#{params[:artist]}%"))
+  end
+
+  erb :index, locals: { albums: albums.to_a.sample(80) }
 end
